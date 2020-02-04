@@ -1,0 +1,25 @@
+{
+  "name": "fontfinder",
+  "version": "1.0.0",
+  "description": "An application for viewing and searching the system fonts.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aquacash5/fontfinder.git"
+  },
+  "keywords": [
+    "Electron",
+    "font",
+    "search",
+    "viewer"
+  ],
+  "author": "Kyle Bloom (kylejbloom@gmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aquacash5/fontfinder/issues"
+  },
+  "homepage": "https://github.com/aquacash5/fontfinder#readme"
+}
