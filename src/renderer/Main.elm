@@ -1,4 +1,4 @@
-port module Main exposing (..)
+port module Main exposing (main)
 
 import Browser
 import Html exposing (Html, div, form, h5, input, li, p, text, ul)
@@ -11,6 +11,7 @@ import List exposing (map)
 -- MAIN
 
 
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
