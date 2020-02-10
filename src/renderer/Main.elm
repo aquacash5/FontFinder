@@ -4,7 +4,7 @@ import Browser
 import Html exposing (Html, div, form, h5, input, li, p, text, ul)
 import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onInput)
-import List exposing (map)
+import List exposing (filter, map)
 
 
 
@@ -84,6 +84,18 @@ subscriptions _ =
 -- VIEW
 
 
+caselessContains : String -> String -> Bool
+caselessContains a b =
+    let
+        lowerA =
+            String.toLower a
+
+        lowerB =
+            String.toLower b
+    in
+    String.contains lowerA lowerB
+
+
 renderFont : String -> String -> Html msg
 renderFont example font =
     li [ class "list-group-item" ]
@@ -148,7 +160,11 @@ view model =
                     ]
 
             Fonts fontList ->
-                ul [ class "list-group" ] (map (renderFont model.example) fontList)
+                ul [ class "list-group" ]
+                    (fontList
+                        |> filter (caselessContains model.search)
+                        |> map (renderFont model.example)
+                    )
 
             Err error ->
                 div [] [ text error ]
