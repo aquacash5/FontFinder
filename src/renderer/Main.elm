@@ -1,10 +1,9 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, div, form, h5, input, li, p, text, ul)
-import Html.Attributes exposing (class, placeholder, style)
-import Html.Events exposing (onInput)
-import List exposing (filter, map)
+import Html exposing (Html, button, div, form, h5, input, p, text)
+import Html.Attributes exposing (class, classList, placeholder, style)
+import Html.Events exposing (onClick, onInput)
 
 
 
@@ -29,13 +28,26 @@ type alias Model =
     { fonts : FontList
     , search : String
     , example : String
+    , bold : Bool
+    , italic : Bool
     }
 
 
 type FontList
     = Loading
     | Fonts (List String)
-    | Err String
+
+
+type alias Presentation p =
+    { p
+        | bold : Bool
+        , italic : Bool
+    }
+
+
+type Presenter
+    = Bold
+    | Italic
 
 
 init : () -> ( Model, Cmd Msg )
@@ -43,6 +55,8 @@ init _ =
     ( { fonts = Loading
       , search = ""
       , example = ""
+      , bold = False
+      , italic = False
       }
     , Cmd.none
     )
@@ -56,6 +70,7 @@ type Msg
     = AddFonts (List String)
     | ChangeExample String
     | ChangeSearch String
+    | TogglePresenter Presenter
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -69,6 +84,14 @@ update msg model =
 
         ChangeSearch ser ->
             ( { model | search = ser }, Cmd.none )
+
+        TogglePresenter presenter ->
+            case presenter of
+                Bold ->
+                    ( { model | bold = not model.bold }, Cmd.none )
+
+                Italic ->
+                    ( { model | italic = not model.italic }, Cmd.none )
 
 
 
@@ -96,13 +119,18 @@ caselessContains a b =
     String.contains lowerA lowerB
 
 
-renderFont : String -> String -> Html msg
-renderFont example font =
-    li [ class "list-group-item" ]
-        [ div [ class "row" ]
-            [ div [ class "col" ]
-                [ p
-                    [ class "card-text"
+renderFont : String -> Presentation p -> String -> Html msg
+renderFont example presentation font =
+    div [ class "col-4" ]
+        [ div [ class "card m-2" ]
+            [ div [ class "card-body" ]
+                [ h5 [ class "card-title" ] [ text font ]
+                , p
+                    [ classList
+                        [ ( "card-text", True )
+                        , ( "font-weight-bold", presentation.bold )
+                        , ( "font-italic", presentation.italic )
+                        ]
                     , style "font-family" font
                     , style "font-size" "38px"
                     ]
@@ -115,7 +143,6 @@ renderFont example font =
                         )
                     ]
                 ]
-            , div [ class "col" ] [ h5 [] [ text font ] ]
             ]
         ]
 
@@ -123,13 +150,40 @@ renderFont example font =
 navBar : Model -> Html Msg
 navBar model =
     div [ class "navbar sticky-top navbar-light bg-light" ]
-        [ form [ class "form-inline" ]
-            [ input
-                [ class "form-control mr-sm-2"
-                , placeholder "Example"
-                , onInput ChangeExample
+        [ div []
+            [ form
+                [ class "form-inline"
+                , style "display" "inline"
                 ]
-                [ text model.example ]
+                [ input
+                    [ class "form-control mr-sm-2"
+                    , placeholder "Example"
+                    , onInput ChangeExample
+                    ]
+                    [ text model.example ]
+                ]
+            , div [ class "btn-group" ]
+                [ button
+                    [ classList
+                        [ ( "btn", True )
+                        , ( "font-weight-bold", True )
+                        , ( "btn-primary", model.bold )
+                        , ( "btn-outline-primary", not model.bold )
+                        ]
+                    , onClick (TogglePresenter Bold)
+                    ]
+                    [ text "B" ]
+                , button
+                    [ classList
+                        [ ( "btn", True )
+                        , ( "font-italic", True )
+                        , ( "btn-primary", model.italic )
+                        , ( "btn-outline-primary", not model.italic )
+                        ]
+                    , onClick (TogglePresenter Italic)
+                    ]
+                    [ text "I" ]
+                ]
             ]
         , form [ class "form-inline" ]
             [ input
@@ -148,11 +202,11 @@ view model =
         [ navBar model
         , case model.fonts of
             Loading ->
-                div [ class "alert alert-info" ]
+                div [ class "alert alert-info m-5" ]
                     [ text "Loading..."
                     , div [ class "progress" ]
                         [ div
-                            [ class "progress-bar progress-bar-striped bg-info"
+                            [ class "progress-bar progress-bar-striped progress-bar-animated bg-info"
                             , style "width" "100%"
                             ]
                             []
@@ -160,14 +214,22 @@ view model =
                     ]
 
             Fonts fontList ->
-                ul [ class "list-group" ]
-                    (fontList
-                        |> filter (caselessContains model.search)
-                        |> map (renderFont model.example)
-                    )
+                if List.isEmpty fontList then
+                    div [] [ text "No Fonts were found." ]
 
-            Err error ->
-                div [] [ text error ]
+                else
+                    div [ class "row" ]
+                        (fontList
+                            |> List.filter
+                                (caselessContains
+                                    model.search
+                                )
+                            |> List.map
+                                (renderFont
+                                    model.example
+                                    model
+                                )
+                        )
         ]
 
 
