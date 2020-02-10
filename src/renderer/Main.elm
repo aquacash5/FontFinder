@@ -122,7 +122,10 @@ caselessContains a b =
 renderFont : String -> Presentation p -> String -> Html msg
 renderFont example presentation font =
     div [ class "col-4" ]
-        [ div [ class "card m-2" ]
+        [ div
+            [ class "card"
+            , class "m-2"
+            ]
             [ div [ class "card-body" ]
                 [ h5 [ class "card-title" ] [ text font ]
                 , p
@@ -147,47 +150,51 @@ renderFont example presentation font =
         ]
 
 
+presenterButton : String -> Bool -> Presenter -> String -> Html Msg
+presenterButton fontClass enabled presenter label =
+    button
+        [ classList
+            [ ( "btn", True )
+            , ( fontClass, True )
+            , ( "btn-primary", enabled )
+            , ( "btn-outline-primary", not enabled )
+            ]
+        , style "width" "40px"
+        , onClick (TogglePresenter presenter)
+        ]
+        [ text label ]
+
+
 navBar : Model -> Html Msg
 navBar model =
-    div [ class "navbar sticky-top navbar-light bg-light" ]
+    div
+        [ class "navbar"
+        , class "sticky-top"
+        , class "navbar-light"
+        , class "bg-light"
+        ]
         [ div []
             [ form
                 [ class "form-inline"
                 , style "display" "inline"
                 ]
                 [ input
-                    [ class "form-control mr-sm-2"
+                    [ class "form-control"
+                    , class "mr-sm-2"
                     , placeholder "Example"
                     , onInput ChangeExample
                     ]
                     [ text model.example ]
                 ]
             , div [ class "btn-group" ]
-                [ button
-                    [ classList
-                        [ ( "btn", True )
-                        , ( "font-weight-bold", True )
-                        , ( "btn-primary", model.bold )
-                        , ( "btn-outline-primary", not model.bold )
-                        ]
-                    , onClick (TogglePresenter Bold)
-                    ]
-                    [ text "B" ]
-                , button
-                    [ classList
-                        [ ( "btn", True )
-                        , ( "font-italic", True )
-                        , ( "btn-primary", model.italic )
-                        , ( "btn-outline-primary", not model.italic )
-                        ]
-                    , onClick (TogglePresenter Italic)
-                    ]
-                    [ text "I" ]
+                [ presenterButton "font-weight-bold" model.bold Bold "B"
+                , presenterButton "font-italic" model.italic Italic "I"
                 ]
             ]
         , form [ class "form-inline" ]
             [ input
-                [ class "form-control mr-sm-2"
+                [ class "form-control"
+                , class "mr-sm-2"
                 , placeholder "Search"
                 , onInput ChangeSearch
                 ]
@@ -206,7 +213,10 @@ view model =
                     [ text "Loading..."
                     , div [ class "progress" ]
                         [ div
-                            [ class "progress-bar progress-bar-striped progress-bar-animated bg-info"
+                            [ class "progress-bar"
+                            , class "progress-bar-striped"
+                            , class "progress-bar-animated"
+                            , class "bg-info"
                             , style "width" "100%"
                             ]
                             []
