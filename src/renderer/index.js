@@ -18,5 +18,7 @@ systemFonts.getFonts().then(
   fonts => {
     fontfinder.ports.receiveFonts.send(fonts);
   },
-  err => {} // handle the error
+  err => {
+    fontfinder.ports.receiveFonts.send([]);
+  } // handle the error
 );
