@@ -2,7 +2,7 @@ port module Main exposing (main)
 
 import Browser
 import Html exposing (Html, button, div, form, h5, input, p, text)
-import Html.Attributes exposing (class, classList, placeholder, style)
+import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 
 
@@ -28,6 +28,7 @@ type alias Model =
     { fonts : FontList
     , search : String
     , example : String
+    , fontSize : Int
     , bold : Bool
     , italic : Bool
     }
@@ -42,6 +43,7 @@ type alias Presentation p =
     { p
         | bold : Bool
         , italic : Bool
+        , fontSize : Int
     }
 
 
@@ -53,8 +55,9 @@ type Presenter
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { fonts = Loading
-      , search = ""
       , example = ""
+      , search = ""
+      , fontSize = 38
       , bold = False
       , italic = False
       }
@@ -70,6 +73,7 @@ type Msg
     = AddFonts (List String)
     | ChangeExample String
     | ChangeSearch String
+    | ChangeFontSize String
     | TogglePresenter Presenter
 
 
@@ -84,6 +88,14 @@ update msg model =
 
         ChangeSearch ser ->
             ( { model | search = ser }, Cmd.none )
+
+        ChangeFontSize strSize ->
+            case String.toInt strSize of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just size ->
+                    ( { model | fontSize = size }, Cmd.none )
 
         TogglePresenter presenter ->
             case presenter of
@@ -121,10 +133,14 @@ caselessContains a b =
 
 renderFont : String -> Presentation p -> String -> Html msg
 renderFont example presentation font =
-    div [ class "col-4" ]
+    div
+        [ class "col-lg-4"
+        , class "col-md-6"
+        , class "col-12"
+        ]
         [ div
             [ class "card"
-            , class "m-2"
+            , class "my-2"
             ]
             [ div [ class "card-body" ]
                 [ h5 [ class "card-title" ] [ text font ]
@@ -135,7 +151,7 @@ renderFont example presentation font =
                         , ( "font-italic", presentation.italic )
                         ]
                     , style "font-family" font
-                    , style "font-size" "38px"
+                    , style "font-size" (String.fromInt presentation.fontSize ++ "px")
                     ]
                     [ text
                         (if String.isEmpty example then
@@ -156,8 +172,8 @@ presenterButton fontClass enabled presenter label =
         [ classList
             [ ( "btn", True )
             , ( fontClass, True )
-            , ( "btn-primary", enabled )
-            , ( "btn-outline-primary", not enabled )
+            , ( "btn-secondary", enabled )
+            , ( "btn-outline-secondary", not enabled )
             ]
         , style "width" "40px"
         , onClick (TogglePresenter presenter)
@@ -190,6 +206,21 @@ navBar model =
                 [ presenterButton "font-weight-bold" model.bold Bold "B"
                 , presenterButton "font-italic" model.italic Italic "I"
                 ]
+            , form
+                [ class "form-inline"
+                , class "mx-2"
+                , style "display" "inline"
+                ]
+                [ input
+                    [ class "form-control"
+                    , class "mr-sm-2"
+                    , style "width" "75px"
+                    , type_ "number"
+                    , value (String.fromInt model.fontSize)
+                    , onInput ChangeFontSize
+                    ]
+                    []
+                ]
             ]
         , form [ class "form-inline" ]
             [ input
@@ -205,41 +236,47 @@ navBar model =
 
 view : Model -> Html Msg
 view model =
-    div [ class "container-fluid px-0" ]
+    div []
         [ navBar model
-        , case model.fonts of
-            Loading ->
-                div [ class "alert alert-info m-5" ]
-                    [ text "Loading..."
-                    , div [ class "progress" ]
-                        [ div
-                            [ class "progress-bar"
-                            , class "progress-bar-striped"
-                            , class "progress-bar-animated"
-                            , class "bg-info"
-                            , style "width" "100%"
-                            ]
-                            []
+        , div [ class "container-fluid" ]
+            [ case model.fonts of
+                Loading ->
+                    div
+                        [ class "alert"
+                        , class "alert-info"
+                        , class "m-5"
                         ]
-                    ]
+                        [ text "Loading..."
+                        , div [ class "progress" ]
+                            [ div
+                                [ class "progress-bar"
+                                , class "progress-bar-striped"
+                                , class "progress-bar-animated"
+                                , class "bg-info"
+                                , style "width" "100%"
+                                ]
+                                []
+                            ]
+                        ]
 
-            Fonts fontList ->
-                if List.isEmpty fontList then
-                    div [] [ text "No Fonts were found." ]
+                Fonts fontList ->
+                    if List.isEmpty fontList then
+                        div [] [ text "No Fonts were found." ]
 
-                else
-                    div [ class "row" ]
-                        (fontList
-                            |> List.filter
-                                (caselessContains
-                                    model.search
-                                )
-                            |> List.map
-                                (renderFont
-                                    model.example
-                                    model
-                                )
-                        )
+                    else
+                        div [ class "row" ]
+                            (fontList
+                                |> List.filter
+                                    (caselessContains
+                                        model.search
+                                    )
+                                |> List.map
+                                    (renderFont
+                                        model.example
+                                        model
+                                    )
+                            )
+            ]
         ]
 
 
