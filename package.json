@@ -2,13 +2,16 @@
   "name": "fontfinder",
   "version": "1.0.0",
   "description": "An application for viewing and searching the system fonts.",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cross-env NODE_ENV=dev run-s build:renderer build:main start:electron",
+    "start:electron": "electron .",
+    "build:renderer": "webpack --config webpack.renderer.config.js",
+    "build:main": "webpack --config webpack.main.config.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aquacash5/fontfinder.git"
+    "url": "git+https://github.com/aquacash5/FontFinder.git"
   },
   "keywords": [
     "Electron",
@@ -19,7 +22,28 @@
   "author": "Kyle Bloom (kylejbloom@gmail.com)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/aquacash5/fontfinder/issues"
+    "url": "https://github.com/aquacash5/FontFinder/issues"
   },
-  "homepage": "https://github.com/aquacash5/fontfinder#readme"
+  "homepage": "https://github.com/aquacash5/FontFinder#readme",
+  "devDependencies": {
+    "@webpack-cli/init": "^0.3.0",
+    "autoprefixer": "^9.7.4",
+    "cross-env": "^7.0.0",
+    "css-loader": "^3.4.2",
+    "electron": "^8.0.0",
+    "elm-webpack-loader": "^6.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "node-sass": "^4.13.1",
+    "npm-run-all": "^4.1.5",
+    "postcss-loader": "^3.0.0",
+    "sass-loader": "^8.0.2",
+    "style-loader": "^1.1.3",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.2"
+  },
+  "dependencies": {
+    "bootstrap": "^4.4.1",
+    "system-font-families": "^0.4.1"
+  }
 }
