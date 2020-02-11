@@ -57,7 +57,7 @@ init _ =
     ( { fonts = Loading
       , example = ""
       , search = ""
-      , fontSize = 38
+      , fontSize = 40
       , bold = False
       , italic = False
       }
