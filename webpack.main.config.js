@@ -4,7 +4,7 @@ const config = env => {
   return {
     mode: "none",
     entry: {
-      index: "./src/main/index.js"
+      index: "./src/main/main.js"
     },
     target: "electron-main",
     output: {
