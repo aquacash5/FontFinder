@@ -18,10 +18,19 @@ const config = env => {
           test: /\.elm$/,
           exclude: [/elm-stuff/, /node_modules/],
           use: [
+            { loader: "elm-hot-webpack-loader" },
             {
               loader: "elm-webpack-loader",
               options:
-                env && env.production ? { debug: false, optimize: true } : {}
+                env && env.production
+                  ? {
+                      debug: false,
+                      optimize: true
+                    }
+                  : {
+                      debug: true,
+                      optimize: false
+                    }
             }
           ]
         },
@@ -30,26 +39,24 @@ const config = env => {
           use: [
             {
               // Adds CSS to the DOM by injecting a `<style>` tag
-              loader: 'style-loader'
+              loader: "style-loader"
             },
             {
               // Interprets `@import` and `url()` like `import/require()` and will resolve them
-              loader: 'css-loader'
+              loader: "css-loader"
             },
             {
               // Loader for webpack to process CSS with PostCSS
-              loader: 'postcss-loader',
+              loader: "postcss-loader",
               options: {
-                plugins: function () {
-                  return [
-                    require('autoprefixer')
-                  ];
+                plugins: function() {
+                  return [require("autoprefixer")];
                 }
               }
             },
             {
               // Loads a SASS/SCSS file and compiles it to CSS
-              loader: 'sass-loader'
+              loader: "sass-loader"
             }
           ]
         }

@@ -20,7 +20,11 @@ function createWindow() {
 
   // display the index.html file
   // mainWindow.loadFile("index.html");
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  if (process.env.NODE_ENV === "production") {
+    mainWindow.loadURL(`file://${__dirname}/index.html`);
+  } else {
+    mainWindow.loadURL(`http://localhost:8080/`);
+  }
 
   // open dev tools by default so we can see any console errors
   // mainWindow.webContents.openDevTools();
