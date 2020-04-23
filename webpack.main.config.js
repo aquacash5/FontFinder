@@ -3,9 +3,7 @@ const path = require("path");
 const config = env => {
   return {
     mode: "none",
-    entry: {
-      index: "./src/main/main.js"
-    },
+    entry: "./src/main/main.js",
     target: "electron-main",
     output: {
       path: path.resolve(__dirname, "dist"),
