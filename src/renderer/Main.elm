@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Browser
 import Html exposing (Html, button, div, form, h5, input, p, text)
 import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onBlur, onClick, onInput)
 
 
 
@@ -22,6 +22,10 @@ main =
 
 
 -- MODEL
+
+
+defaultFontSize =
+    40
 
 
 type alias Model =
@@ -57,7 +61,7 @@ init _ =
     ( { fonts = Loading
       , example = ""
       , search = ""
-      , fontSize = 40
+      , fontSize = defaultFontSize
       , bold = False
       , italic = False
       }
@@ -74,6 +78,7 @@ type Msg
     | ChangeExample String
     | ChangeSearch String
     | ChangeFontSize String
+    | ConfirmFontSize
     | TogglePresenter Presenter
 
 
@@ -92,10 +97,17 @@ update msg model =
         ChangeFontSize strSize ->
             case String.toInt strSize of
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( { model | fontSize = 0 }, Cmd.none )
 
                 Just size ->
                     ( { model | fontSize = size }, Cmd.none )
+
+        ConfirmFontSize ->
+            if model.fontSize <= 0 then
+                ( { model | fontSize = defaultFontSize }, Cmd.none )
+
+            else
+                ( model, Cmd.none )
 
         TogglePresenter presenter ->
             case presenter of
@@ -131,6 +143,15 @@ caselessContains a b =
     String.contains lowerA lowerB
 
 
+getFontStyle : Int -> String
+getFontStyle size =
+    if size == 0 then
+        String.fromInt defaultFontSize ++ "px"
+
+    else
+        String.fromInt size ++ "px"
+
+
 renderFont : String -> Presentation p -> String -> Html msg
 renderFont example presentation font =
     div
@@ -151,7 +172,7 @@ renderFont example presentation font =
                         , ( "font-italic", presentation.italic )
                         ]
                     , style "font-family" font
-                    , style "font-size" (String.fromInt presentation.fontSize ++ "px")
+                    , style "font-size" (getFontStyle presentation.fontSize)
                     ]
                     [ text
                         (if String.isEmpty example then
@@ -216,8 +237,15 @@ navBar model =
                     , class "mr-sm-2"
                     , style "width" "75px"
                     , type_ "number"
-                    , value (String.fromInt model.fontSize)
+                    , value
+                        (if model.fontSize == 0 then
+                            ""
+
+                         else
+                            String.fromInt model.fontSize
+                        )
                     , onInput ChangeFontSize
+                    , onBlur ConfirmFontSize
                     ]
                     []
                 ]
