@@ -11,6 +11,7 @@ async function start() {
     name: "Font Finder",
     manufacturer: "kylebloom.dev",
     version: pjson.version,
+    arch: "x64",
     outputDirectory: path.join(__dirname, "installers", "win"),
     ui: {
       enable: true,
