@@ -1,5 +1,5 @@
 "use strict";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, Menu } from "electron";
 
 var onMac = /^darwin/.test(process.platform);
 var onWindows = /^win/.test(process.platform);
@@ -14,16 +14,19 @@ function createWindow() {
     width: 1024,
     height: 768,
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+    },
   });
+  const menu = Menu.buildFromTemplate([]);
 
+  mainWindow.setMenu(menu);
+  mainWindow.setMenu(null);
   // display the index.html file
   // mainWindow.loadFile("index.html");
-  if (process.env.NODE_ENV === "production") {
-    mainWindow.loadURL(`file://${__dirname}/index.html`);
+  if (process.env.NODE_ENV === "dev") {
+    mainWindow.loadURL("http://localhost:8080/");
   } else {
-    mainWindow.loadURL(`http://localhost:8080/`);
+    mainWindow.loadURL(`file://${__dirname}/index.html`);
   }
 
   // open dev tools by default so we can see any console errors
