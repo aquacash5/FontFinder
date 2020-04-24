@@ -11,7 +11,7 @@
     "build:main": "webpack --config webpack.main.config.js",
     "build:main:run": "run-s build:main start:electron",
     "package": "run-s build:renderer build:main package:win64",
-    "package:win64": "electron-packager . --asar --overwrite --ignore=/node_modules --ignore=/src --platform=win32 --arch=x64 --out dist/win --icon=assets/icons/windows/icon.ico"
+    "package:win64": "electron-packager . --overwrite --asar --ignore=\"(dist|node_modules|elm|src|\\.vscode|\\.git|webpack|lock)\" --platform=win32 --arch=x64 --out dist/win --icon=assets/icons/windows/icon.ico"
   },
   "repository": {
     "type": "git",
