@@ -7,7 +7,7 @@ async function start() {
   const msiCreator = new MSICreator({
     appDirectory: path.join(__dirname, "dist", "win", "fontfinder-win32-x64"),
     description: pjson.description,
-    exe: `fontfinder-v${pjson.version}.exe`,
+    exe: `fontfinder.exe`,
     name: "Font Finder",
     manufacturer: "kylebloom.dev",
     version: pjson.version,
