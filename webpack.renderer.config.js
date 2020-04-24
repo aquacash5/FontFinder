@@ -7,7 +7,7 @@ const config = (env) => {
     entry: "./src/renderer/index.js",
     target: "electron-renderer",
     output: {
-      path: path.resolve(__dirname, "dist"),
+      path: path.resolve(__dirname, "build"),
       filename: "renderer.js",
     },
     module: {
@@ -19,16 +19,10 @@ const config = (env) => {
             { loader: "elm-hot-webpack-loader" },
             {
               loader: "elm-webpack-loader",
-              options:
-                env && env.production
-                  ? {
-                      debug: false,
-                      optimize: true,
-                    }
-                  : {
-                      debug: true,
-                      optimize: false,
-                    },
+              options: {
+                debug: false,
+                optimize: true,
+              },
             },
           ],
         },
