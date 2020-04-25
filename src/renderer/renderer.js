@@ -2,7 +2,7 @@
 
 import { Elm } from "./Main.elm";
 import SystemFonts from "system-font-families";
-import "./scss/renderer.scss";
+import "./styles/renderer.scss";
 
 const systemFonts = new SystemFonts();
 
@@ -15,10 +15,10 @@ document.body.appendChild(container);
 let fontfinder = Elm.Main.init({ node: container });
 
 systemFonts.getFonts().then(
-  fonts => {
+  (fonts) => {
     fontfinder.ports.receiveFonts.send(fonts);
   },
-  err => {
+  (err) => {
     fontfinder.ports.receiveFonts.send([]);
   } // handle the error
 );

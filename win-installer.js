@@ -1,44 +1,32 @@
-const { MSICreator } = require("electron-wix-msi");
+const electronInstaller = require("electron-winstaller");
 const path = require("path");
 const pjson = require("./package.json");
 
 async function start() {
-  // Step 1: Instantiate the MSICreator
-  const msiCreator = new MSICreator({
-    appDirectory: path.join(__dirname, "dist", "win", "fontfinder-win32-x64"),
-    description: pjson.description,
-    exe: `fontfinder.exe`,
-    name: "Font Finder",
-    manufacturer: "kylebloom.dev",
-    version: pjson.version,
-    arch: "x64",
-    outputDirectory: path.join(__dirname, "installers", "win"),
-    ui: {
-      enable: true,
-      chooseDirectory: true,
-      images: {
-        background: path.join(
-          __dirname,
-          "assets",
-          "icons",
-          "windows",
-          "installer-background.png"
-        ),
-        banner: path.join(
-          __dirname,
-          "assets",
-          "icons",
-          "windows",
-          "installer-banner.png"
-        ),
-      },
-    },
-  });
-
-  // Step 2: Create a .wxs template file
-  await msiCreator.create();
-
-  // Step 3: Compile the template to a .msi file
-  await msiCreator.compile();
+  try {
+    await electronInstaller.createWindowsInstaller({
+      appDirectory: path.join(__dirname, "dist", "win", "fontfinder-win32-x64"),
+      outputDirectory: path.join(__dirname, "installers", "win"),
+      title: pjson.productName,
+      authors: "kylebloom.dev",
+      name: pjson.name,
+      description: pjson.description,
+      exe: "fontfinder.exe",
+      iconUrl: path.join(__dirname, "assets", "icons", "windows", "icon.ico"),
+      setupIcon: path.join(
+        __dirname,
+        "assets",
+        "icons",
+        "windows",
+        "installer-icon.ico"
+      ),
+      setupMsi: "FontFinder-installer.msi",
+      setupExe: "FontFinder-installer.exe",
+      loadingGif: path.join(__dirname, "src", "assets", "clear.gif"),
+    });
+    console.log("It worked!");
+  } catch (e) {
+    console.log(`No dice: ${e.message}`);
+  }
 }
 start();

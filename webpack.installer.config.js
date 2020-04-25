@@ -4,25 +4,19 @@ const path = require("path");
 const config = (env) => {
   return {
     mode: "none",
-    entry: "./src/renderer/renderer.js",
+    entry: "./src/installer/installer.js",
     target: "electron-renderer",
     output: {
       path: path.resolve(__dirname, "build"),
-      filename: "renderer.js",
+      filename: "installer.js",
     },
     module: {
       rules: [
         {
-          test: /\.elm$/,
-          exclude: [/elm-stuff/, /node_modules/],
+          test: /\.(png|jpg|gif)$/i,
           use: [
-            { loader: "elm-hot-webpack-loader" },
             {
-              loader: "elm-webpack-loader",
-              options: {
-                debug: false,
-                optimize: true,
-              },
+              loader: "url-loader",
             },
           ],
         },
@@ -57,7 +51,8 @@ const config = (env) => {
     plugins: [
       new HtmlWebpackPlugin({
         title: "Font Finder",
-        filename: "renderer.html",
+        filename: "installer.html",
+        template: "src/installer/installer.html",
       }),
     ],
   };
