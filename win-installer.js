@@ -1,6 +1,7 @@
 const electronInstaller = require("electron-winstaller");
 const path = require("path");
 const pjson = require("./package.json");
+require("dotenv").config();
 
 async function start() {
   try {
@@ -23,6 +24,8 @@ async function start() {
       setupMsi: "FontFinder-installer.msi",
       setupExe: "FontFinder-installer.exe",
       loadingGif: path.join(__dirname, "src", "assets", "clear.gif"),
+      certificateFile: process.env.CERT_FILE || "",
+      certificatePassword: process.env.CERT_PASS || "",
     });
     console.log("It worked!");
   } catch (e) {
