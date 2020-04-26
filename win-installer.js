@@ -8,6 +8,7 @@ async function start() {
     await electronInstaller.createWindowsInstaller({
       appDirectory: path.join(__dirname, "dist", "win", "fontfinder-win32-x64"),
       outputDirectory: path.join(__dirname, "installers", "win"),
+      remoteReleases: "https://github.com/aquacash5/FontFinder",
       title: pjson.productName,
       authors: "kylebloom.dev",
       name: pjson.name,
