@@ -1,1 +1,20 @@
 @import "~bootstrap/scss/bootstrap";
+
+.close {
+  color: inherit;
+  outline: 0px !important;
+}
+
+.close:hover {
+  color: inherit;
+  outline: 0px !important;
+}
+
+.color:focus {
+  color: inherit;
+  outline: 0px !important;
+}
+
+.card {
+  border-radius: 1rem;
+}

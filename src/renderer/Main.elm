@@ -1,9 +1,10 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, form, h5, input, p, text)
+import Html exposing (Html, button, div, form, h5, input, p, span, text)
 import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onBlur, onClick, onInput)
+import Set
 
 
 
@@ -24,6 +25,7 @@ main =
 -- MODEL
 
 
+defaultFontSize : Int
 defaultFontSize =
     40
 
@@ -35,20 +37,14 @@ type alias Model =
     , fontSize : Int
     , bold : Bool
     , italic : Bool
+    , filterSelected : Bool
+    , selected : Set.Set String
     }
 
 
 type FontList
     = Loading
     | Fonts (List String)
-
-
-type alias Presentation p =
-    { p
-        | bold : Bool
-        , italic : Bool
-        , fontSize : Int
-    }
 
 
 type Presenter
@@ -64,6 +60,8 @@ init _ =
       , fontSize = defaultFontSize
       , bold = False
       , italic = False
+      , filterSelected = False
+      , selected = Set.empty
       }
     , Cmd.none
     )
@@ -80,6 +78,10 @@ type Msg
     | ChangeFontSize String
     | ConfirmFontSize
     | TogglePresenter Presenter
+    | AddSelectedFont String
+    | RemoveSelectedFont String
+    | SetFilterSelected Bool
+    | ClearSelected
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -117,6 +119,18 @@ update msg model =
                 Italic ->
                     ( { model | italic = not model.italic }, Cmd.none )
 
+        AddSelectedFont fontName ->
+            ( { model | selected = Set.insert fontName model.selected }, Cmd.none )
+
+        RemoveSelectedFont fontName ->
+            ( { model | selected = Set.remove fontName model.selected }, Cmd.none )
+
+        SetFilterSelected enabled ->
+            ( { model | filterSelected = enabled }, Cmd.none )
+
+        ClearSelected ->
+            ( { model | selected = Set.empty, filterSelected = False }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -152,35 +166,72 @@ getFontStyle size =
         String.fromInt size ++ "px"
 
 
-renderFont : String -> Presentation p -> String -> Html msg
-renderFont example presentation font =
+renderFont : Model -> String -> Html Msg
+renderFont model font =
+    let
+        fontSelected =
+            Set.member font model.selected
+
+        toggleChecked =
+            if fontSelected then
+                RemoveSelectedFont font
+
+            else
+                AddSelectedFont font
+    in
     div
         [ class "col-lg-4"
         , class "col-md-6"
         , class "col-12"
         ]
         [ div
-            [ class "card"
-            , class "my-2"
+            [ classList
+                [ ( "card", True )
+                , ( "my-2", True )
+                , ( "text-white", fontSelected )
+                , ( "bg-info", fontSelected )
+                ]
             ]
-            [ div [ class "card-body" ]
-                [ h5 [ class "card-title" ] [ text font ]
-                , p
-                    [ classList
-                        [ ( "card-text", True )
-                        , ( "font-weight-bold", presentation.bold )
-                        , ( "font-italic", presentation.italic )
-                        ]
-                    , style "font-family" font
-                    , style "font-size" (getFontStyle presentation.fontSize)
+            [ div
+                [ class "card-body"
+                ]
+                [ div
+                    [ class "pt-0"
                     ]
-                    [ text
-                        (if String.isEmpty example then
-                            font
+                    [ h5
+                        [ class "card-title"
+                        , class "float-left"
+                        ]
+                        [ text font ]
+                    , button
+                        [ class "close"
+                        , class "float-right"
+                        , class "pl-3"
+                        , class "pt-0"
+                        , onClick toggleChecked
+                        ]
+                        [ span [ class "card-title" ] [ text "✓" ] ]
+                    ]
+                , div
+                    [ class "mt-5"
+                    ]
+                    [ p
+                        [ classList
+                            [ ( "card-text", True )
+                            , ( "font-weight-bold", model.bold )
+                            , ( "font-italic", model.italic )
+                            ]
+                        , style "font-family" font
+                        , style "font-size" (getFontStyle model.fontSize)
+                        ]
+                        [ text
+                            (if String.isEmpty model.example then
+                                font
 
-                         else
-                            example
-                        )
+                             else
+                                model.example
+                            )
+                        ]
                     ]
                 ]
             ]
@@ -249,6 +300,34 @@ navBar model =
                     ]
                     []
                 ]
+            , div [ class "btn-group" ]
+                [ button
+                    [ classList
+                        [ ( "btn", True )
+                        , ( "btn-info", model.filterSelected )
+                        , ( "btn-outline-info", not model.filterSelected )
+                        ]
+                    , onClick (SetFilterSelected (not model.filterSelected))
+                    ]
+                    [ text "Filter Selected "
+                    , span
+                        [ classList
+                            [ ( "badge", True )
+                            , ( "badge-pill", True )
+                            , ( "badge-light", model.filterSelected )
+                            , ( "badge-info", not model.filterSelected )
+                            ]
+                        ]
+                        [ text <| String.fromInt <| Set.size model.selected ]
+                    ]
+                , button
+                    [ class "btn"
+                    , class "btn-info"
+                    , onClick ClearSelected
+                    ]
+                    [ text "Clear"
+                    ]
+                ]
             ]
         , form [ class "form-inline" ]
             [ input
@@ -260,6 +339,25 @@ navBar model =
                 [ text model.search ]
             ]
         ]
+
+
+alwaysTrue : a -> Bool
+alwaysTrue _ =
+    True
+
+
+skipFilter : Bool -> (a -> Bool) -> (a -> Bool)
+skipFilter skip predicate =
+    if skip then
+        predicate
+
+    else
+        alwaysTrue
+
+
+isMember : Set.Set comparable -> comparable -> Bool
+isMember set comp =
+    Set.member comp set
 
 
 view : Model -> Html Msg
@@ -295,12 +393,17 @@ view model =
                         div [ class "row" ]
                             (fontList
                                 |> List.filter
-                                    (caselessContains
-                                        model.search
+                                    (skipFilter
+                                        (not model.filterSelected)
+                                        (caselessContains model.search)
+                                    )
+                                |> List.filter
+                                    (skipFilter
+                                        model.filterSelected
+                                        (isMember model.selected)
                                     )
                                 |> List.map
                                     (renderFont
-                                        model.example
                                         model
                                     )
                             )
