@@ -1,6 +1,8 @@
 "use strict";
 import { app, BrowserWindow, Menu } from "electron";
 import { handleSquirrelEvent } from "./handleSquirrel";
+import dotenv from "dotenv";
+dotenv.config();
 
 const onMac = /^darwin/.test(process.platform);
 const onWindows = /^win/.test(process.platform);
@@ -29,16 +31,17 @@ function main() {
 
     mainWindow.setMenu(emptyMenu);
     mainWindow.setMenu(null);
+
     // display the index.html file
     // mainWindow.loadFile("index.html");
-    if (process.env.NODE_ENV === "dev") {
-      mainWindow.loadURL("http://localhost:8080/");
+    if (process.env.NODE_ENV === "development") {
+      mainWindow.loadURL("http://localhost:8080/renderer.html");
     } else {
       mainWindow.loadURL(`file://${__dirname}/renderer.html`);
     }
 
     // open dev tools by default so we can see any console errors
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     mainWindow.on("closed", function() {
       mainWindow = null;

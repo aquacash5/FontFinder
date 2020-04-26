@@ -1,9 +1,10 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
-const config = (env) => {
+const config = () => {
+  const env = process.env.NODE_ENV;
   return {
-    mode: "none",
+    mode: env,
     entry: "./src/renderer/renderer.js",
     target: "electron-renderer",
     output: {
@@ -19,10 +20,10 @@ const config = (env) => {
             { loader: "elm-hot-webpack-loader" },
             {
               loader: "elm-webpack-loader",
-              options: {
-                debug: false,
-                optimize: true,
-              },
+              options:
+                env === "development"
+                  ? { debug: true, optimize: false }
+                  : { debug: false, optimize: true },
             },
           ],
         },

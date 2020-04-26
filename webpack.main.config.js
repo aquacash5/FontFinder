@@ -1,8 +1,9 @@
 const path = require("path");
 
-const config = (env) => {
+const config = () => {
+  const env = process.env.NODE_ENV;
   return {
-    mode: "none",
+    mode: env,
     entry: "./src/main/main.js",
     target: "electron-main",
     output: {

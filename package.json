@@ -5,18 +5,18 @@
   "description": "An application for viewing and searching the system fonts.",
   "main": "build/main.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=dev run-p -r build:renderer:dev build:main:run",
+    "start": "cross-env NODE_ENV=development run-p -r build:renderer:dev build:main:run",
     "start:electron": "electron .",
     "build:installer": "webpack --config webpack.installer.config.js",
     "build:renderer": "webpack --config webpack.renderer.config.js",
-    "build:renderer:dev": "webpack-dev-server --config webpack.renderer.config.js",
+    "build:renderer:dev": "webpack-dev-server --content-base ./build --config webpack.renderer.config.js",
     "build:main": "webpack --config webpack.main.config.js",
     "build:main:run": "run-s build:main start:electron",
     "reset": "run-s reset:build reset:dist reset:installer",
     "reset:build": "shx rm -rf ./build",
     "reset:dist": "shx rm -rf ./dist",
     "reset:installer": "shx rm -rf ./installers",
-    "package": "run-s reset build:installer build:renderer build:main package:win",
+    "package": "cross-env NODE_ENV=production run-s reset build:installer build:renderer build:main package:win",
     "package:win": "electron-packager . fontfinder --overwrite --asar --ignore=\"(dist|node_modules|elm|src|installers|\\.vscode|\\.git|webpack|lock)\" --platform=win32 --arch=x64 --out dist/win --icon=assets/icons/windows/icon.ico",
     "installer": "run-s package installer:win",
     "installer:win": "node ./win-installer.js"
@@ -40,7 +40,6 @@
   "devDependencies": {
     "@webpack-cli/init": "^0.3.0",
     "autoprefixer": "^9.7.4",
-    "cross-env": "^7.0.0",
     "css-loader": "^3.4.2",
     "dotenv": "^8.2.0",
     "electron": "^8.0.0",
@@ -64,6 +63,7 @@
   },
   "dependencies": {
     "bootstrap": "^4.4.1",
+    "cross-env": "^7.0.2",
     "system-font-families": "^0.4.1"
   }
 }
