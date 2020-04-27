@@ -1,5 +1,5 @@
-"use strict";
 import { app, BrowserWindow, Menu } from "electron";
+import windowStateKeeper from "electron-window-state";
 import { handleSquirrelEvent } from "./handleSquirrel";
 import dotenv from "dotenv";
 dotenv.config();
@@ -20,13 +20,25 @@ function main() {
 
   // This will create our app window, no surprise there
   function createWindow() {
+    let mainWindowState = windowStateKeeper({
+      defaultWidth: 1024,
+      defaultHeight: 770,
+      fullScreen: false,
+    });
+
     mainWindow = new BrowserWindow({
-      width: 1024,
-      height: 768,
+      x: mainWindowState.x,
+      y: mainWindowState.y,
+      width: mainWindowState.width,
+      height: mainWindowState.height,
+      fullscreenable: false,
       webPreferences: {
         nodeIntegration: true,
       },
     });
+
+    mainWindowState.manage(mainWindow);
+
     const emptyMenu = Menu.buildFromTemplate([]);
 
     mainWindow.setMenu(emptyMenu);
