@@ -1,10 +1,8 @@
 "use strict";
 
 import { Elm } from "./Main.elm";
-import SystemFonts from "system-font-families";
+import { ipcRenderer } from "electron";
 import "./styles/renderer.scss";
-
-const systemFonts = new SystemFonts();
 
 // get a reference to the div where we will show our UI
 let container = document.createElement("div");
@@ -14,11 +12,8 @@ document.body.appendChild(container);
 // and keep a reference for communicating with the app
 let fontfinder = Elm.Main.init({ node: container });
 
-systemFonts.getFonts().then(
-  (fonts) => {
-    fontfinder.ports.receiveFonts.send(fonts);
-  },
-  (err) => {
-    fontfinder.ports.receiveFonts.send([]);
-  } // handle the error
-);
+ipcRenderer.on("system-fonts", (event, args) => {
+  fontfinder.ports.receiveFonts.send(args);
+});
+
+ipcRenderer.send("main-page-start");
