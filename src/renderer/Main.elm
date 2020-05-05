@@ -373,8 +373,8 @@ view model =
                         , class "justify-content-md-center"
                         ]
                         [ div
-                            [ class "col-lg-4"
-                            , class "col-md-6"
+                            [ class "col-lg-6"
+                            , class "col-md-8"
                             , class "col-sm-auto"
                             ]
                             [ div

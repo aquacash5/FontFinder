@@ -88,7 +88,7 @@ function main() {
   function createWindow() {
     let mainWindowState = windowStateKeeper({
       defaultWidth: 1024,
-      defaultHeight: 770,
+      defaultHeight: 700,
       fullScreen: false,
     });
 
@@ -97,6 +97,8 @@ function main() {
       y: mainWindowState.y,
       width: mainWindowState.width,
       height: mainWindowState.height,
+      minWidth: 900,
+      minHeight: 600,
       fullscreenable: false,
       webPreferences: {
         nodeIntegration: true,
