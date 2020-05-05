@@ -2,13 +2,72 @@ import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import windowStateKeeper from "electron-window-state";
 import SystemFonts from "system-font-families";
 import { handleSquirrelEvent } from "./handleSquirrel";
+import ttfinfo from "ttfinfo";
+import path from "path";
+import os from "os";
 import dotenv from "dotenv";
 dotenv.config();
 
 const onMac = /^darwin/.test(process.platform);
 const onWindows = /^win/.test(process.platform);
 
-const systemFonts = new SystemFonts().getFonts();
+Array.prototype.unique = function() {
+  return Array.from(new Set(this));
+};
+
+function getSystemInfo(e) {
+  if (onWindows) {
+    if (e.microsoft) {
+      return e.microsoft;
+    } else if (e.unicode) {
+      return e.unicode;
+    } else {
+      return e.macintosh;
+    }
+  } else if (onMac) {
+    if (e.macintosh) {
+      return e.macintosh;
+    } else if (e.unicode) {
+      return e.unicode;
+    } else {
+      return e.microsoft;
+    }
+  } else {
+    if (e.unicode) {
+      return e.unicode;
+    } else if (e.microsoft) {
+      return e.microsoft;
+    } else {
+      return e.macintosh;
+    }
+  }
+}
+
+const systemFonts = new Promise((resolve) => {
+  resolve(
+    new SystemFonts({
+      customDirs: [
+        path.join(
+          os.homedir(),
+          "AppData",
+          "Local",
+          "Microsoft",
+          "Windows",
+          "Fonts"
+        ),
+      ],
+    })
+      .getFontsExtendedSync()
+      .map((e) => Object.values(e.files))
+      .flat()
+      .unique()
+      .map(ttfinfo.getSync)
+      .map((e) => e.tables.name)
+      .map(getSystemInfo)
+      .map((e) => e.family)
+      .unique()
+  );
+});
 
 function main() {
   // this should be placed at top of main.js to handle setup events quickly
