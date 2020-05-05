@@ -208,6 +208,7 @@ renderFont model font =
                         , class "float-right"
                         , class "pl-3"
                         , class "pt-0"
+                        , class "stretched-link"
                         , onClick toggleChecked
                         ]
                         [ span [ class "card-title" ] [ text "✓" ] ]
@@ -307,7 +308,7 @@ navBar model =
                         , ( "btn-info", model.filterSelected )
                         , ( "btn-outline-info", not model.filterSelected )
                         ]
-                    , onClick (SetFilterSelected (not model.filterSelected))
+                    , onClick (SetFilterSelected (not model.filterSelected && (Set.size model.selected > 0)))
                     ]
                     [ text "Filter Selected "
                     , span
@@ -368,20 +369,31 @@ view model =
             [ case model.fonts of
                 Loading ->
                     div
-                        [ class "alert"
-                        , class "alert-info"
-                        , class "m-5"
+                        [ class "row"
+                        , class "justify-content-md-center"
                         ]
-                        [ text "Loading..."
-                        , div [ class "progress" ]
+                        [ div
+                            [ class "col-lg-4"
+                            , class "col-md-6"
+                            , class "col-sm-auto"
+                            ]
                             [ div
-                                [ class "progress-bar"
-                                , class "progress-bar-striped"
-                                , class "progress-bar-animated"
-                                , class "bg-info"
-                                , style "width" "100%"
+                                [ class "alert"
+                                , class "alert-info"
+                                , class "m-5"
                                 ]
-                                []
+                                [ text "Loading..."
+                                , div [ class "progress" ]
+                                    [ div
+                                        [ class "progress-bar"
+                                        , class "progress-bar-striped"
+                                        , class "progress-bar-animated"
+                                        , class "bg-info"
+                                        , style "width" "100%"
+                                        ]
+                                        []
+                                    ]
+                                ]
                             ]
                         ]
 
