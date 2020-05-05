@@ -1,14 +1,20 @@
 const electronInstaller = require("electron-winstaller");
+const fetch = require("node-fetch");
 const path = require("path");
 const pjson = require("./package.json");
 require("dotenv").config();
 
 async function start() {
+  const response = await fetch(
+    "https://font-finder-nuts.herokuapp.com/api/channels"
+  );
+  const resJson = await response.json();
+
   try {
     await electronInstaller.createWindowsInstaller({
       appDirectory: path.join(__dirname, "dist", "win", "fontfinder-win32-x64"),
       outputDirectory: path.join(__dirname, "installers", "win"),
-      remoteReleases: "https://github.com/aquacash5/FontFinder",
+      remoteReleases: `https://font-finder-nuts.herokuapp.com/download/${resJson.stable.latest}`,
       title: pjson.productName,
       authors: "kylebloom.dev",
       name: pjson.name,
@@ -24,7 +30,7 @@ async function start() {
       ),
       setupMsi: "FontFinder-installer.msi",
       setupExe: "FontFinder-installer.exe",
-      loadingGif: path.join(__dirname, "src", "assets", "clear.gif"),
+      // loadingGif: path.join(__dirname, "src", "assets", "clear.gif"),
       certificateFile: process.env.CERT_FILE || "",
       certificatePassword: process.env.CERT_PASS || "",
     });
