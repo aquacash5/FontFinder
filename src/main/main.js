@@ -5,6 +5,7 @@ import { handleSquirrelEvent } from "./handleSquirrel";
 import ttfinfo from "ttfinfo";
 import path from "path";
 import os from "os";
+import * as R from "ramda";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -17,25 +18,25 @@ Array.prototype.unique = function() {
 
 function getSystemInfo(e) {
   if (onWindows) {
-    if (e.microsoft) {
+    if (!R.isEmpty(e.microsoft)) {
       return e.microsoft;
-    } else if (e.unicode) {
+    } else if (!R.isEmpty(e.unicode)) {
       return e.unicode;
     } else {
       return e.macintosh;
     }
   } else if (onMac) {
-    if (e.macintosh) {
+    if (!R.isEmpty(e.macintosh)) {
       return e.macintosh;
-    } else if (e.unicode) {
+    } else if (!R.isEmpty(e.unicode)) {
       return e.unicode;
     } else {
       return e.microsoft;
     }
   } else {
-    if (e.unicode) {
+    if (!R.isEmpty(e.unicode)) {
       return e.unicode;
-    } else if (e.microsoft) {
+    } else if (!R.isEmpty(e.microsoft)) {
       return e.microsoft;
     } else {
       return e.macintosh;
@@ -58,14 +59,16 @@ const systemFonts = new Promise((resolve) => {
       ],
     })
       .getFontsExtendedSync()
-      .map((e) => Object.values(e.files))
+      .map(R.prop("files"))
+      .map(R.values)
       .flat()
       .unique()
       .map(ttfinfo.getSync)
-      .map((e) => e.tables.name)
+      .map(R.path(["tables", "name"]))
       .map(getSystemInfo)
-      .map((e) => e.family)
+      .map(R.prop("family"))
       .unique()
+      .filter(R.identity)
   );
 });
 
