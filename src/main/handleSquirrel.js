@@ -1,16 +1,9 @@
-import { app, BrowserWindow, Menu, shell, ipcMain } from "electron";
-import ChildProcess from "child_process";
+import { app, BrowserWindow, Menu, shell } from "electron";
 import path from "path";
 import pjson from "../../package.json";
 
 const minimumTimeout = 5000;
 let windowStart = new Date().getTime();
-
-const shortcutPath = path.join(
-  process.env.APPDATA,
-  "Microsoft/Windows/Start Menu/Programs/",
-  `${pjson.productName}.lnk`
-);
 
 function createInstallWindow(arg) {
   return () => {
@@ -40,6 +33,13 @@ export const handleSquirrelEvent = () => {
   if (process.argv.length === 1) {
     return false;
   }
+
+  const shortcutPath = path.join(
+    process.env.APPDATA,
+    "Microsoft/Windows/Start Menu/Programs/",
+    `${pjson.productName}.lnk`
+  );
+  
   const squirrelEvent = process.argv[1];
   switch (squirrelEvent) {
     case "--squirrel-install":

@@ -6,11 +6,9 @@ import ttfinfo from "ttfinfo";
 import path from "path";
 import os from "os";
 import * as R from "ramda";
+import { onMac, onWindows } from "./utils";
 import dotenv from "dotenv";
 dotenv.config();
-
-const onMac = /^darwin/.test(process.platform);
-const onWindows = /^win/.test(process.platform);
 
 Array.prototype.unique = function() {
   return Array.from(new Set(this));
@@ -74,7 +72,7 @@ const systemFonts = new Promise((resolve) => {
 
 function main() {
   // this should be placed at top of main.js to handle setup events quickly
-  if (handleSquirrelEvent(__dirname)) {
+  if (onWindows && handleSquirrelEvent(__dirname)) {
     // squirrel event handled and app will exit in 1000ms, so don't do anything else
     return;
   }
