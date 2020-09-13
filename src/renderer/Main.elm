@@ -395,20 +395,6 @@ navBar model =
         ]
 
 
-alwaysTrue : a -> Bool
-alwaysTrue _ =
-    True
-
-
-skipFilter : Bool -> (a -> Bool) -> (a -> Bool)
-skipFilter skip predicate =
-    if skip then
-        predicate
-
-    else
-        alwaysTrue
-
-
 isMember : Set.Set comparable -> comparable -> Bool
 isMember set comp =
     Set.member comp set
