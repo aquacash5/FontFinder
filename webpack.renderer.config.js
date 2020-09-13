@@ -30,14 +30,8 @@ const config = () => {
         {
           test: /\.(s?[ca]ss)$/,
           use: [
-            {
-              // Adds CSS to the DOM by injecting a `<style>` tag
-              loader: "style-loader",
-            },
-            {
-              // Interprets `@import` and `url()` like `import/require()` and will resolve them
-              loader: "css-loader",
-            },
+            "style-loader",
+            "css-loader",
             {
               // Loader for webpack to process CSS with PostCSS
               loader: "postcss-loader",
@@ -47,10 +41,7 @@ const config = () => {
                 },
               },
             },
-            {
-              // Loads a SASS/SCSS file and compiles it to CSS
-              loader: "sass-loader",
-            },
+            "sass-loader",
           ],
         },
       ],
