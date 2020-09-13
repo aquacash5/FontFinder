@@ -1,9 +1,10 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, form, h5, input, p, span, text)
+import Html exposing (Html, button, div, form, h5, input, li, nav, p, span, text, ul)
 import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onBlur, onClick, onInput)
+import Paginate exposing (..)
 import Set
 
 
@@ -17,7 +18,7 @@ main =
         { init = init
         , update = update
         , subscriptions = subscriptions
-        , view = view
+        , view = filterFonts >> view
         }
 
 
@@ -44,7 +45,21 @@ type alias Model =
 
 type FontList
     = Loading
-    | Fonts (List String)
+    | Empty
+    | Fonts (Paginate.PaginatedList String)
+
+
+whenFonts : (Paginate.PaginatedList String -> Paginate.PaginatedList String) -> FontList -> FontList
+whenFonts callback fontList =
+    case fontList of
+        Loading ->
+            Loading
+
+        Empty ->
+            Empty
+
+        Fonts fonts ->
+            Fonts (callback fonts)
 
 
 type Presenter
@@ -82,13 +97,20 @@ type Msg
     | RemoveSelectedFont String
     | SetFilterSelected Bool
     | ClearSelected
+    | NextPage
+    | PreviousPage
+    | GoToIndex Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         AddFonts fontList ->
-            ( { model | fonts = Fonts fontList }, Cmd.none )
+            if List.isEmpty fontList then
+                ( { model | fonts = Empty }, Cmd.none )
+
+            else
+                ( { model | fonts = Fonts (Paginate.fromList 24 fontList) }, Cmd.none )
 
         ChangeExample ex ->
             ( { model | example = ex }, Cmd.none )
@@ -131,6 +153,16 @@ update msg model =
         ClearSelected ->
             ( { model | selected = Set.empty, filterSelected = False }, Cmd.none )
 
+        -- Pagination
+        NextPage ->
+            ( { model | fonts = whenFonts Paginate.next model.fonts }, Cmd.none )
+
+        PreviousPage ->
+            ( { model | fonts = whenFonts Paginate.prev model.fonts }, Cmd.none )
+
+        GoToIndex index ->
+            ( { model | fonts = whenFonts (Paginate.goTo index) model.fonts }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -143,6 +175,27 @@ subscriptions _ =
 
 
 -- VIEW
+
+
+filterFonts : Model -> Model
+filterFonts model =
+    case model.fonts of
+        Loading ->
+            model
+
+        Empty ->
+            model
+
+        Fonts fonts ->
+            let
+                filter =
+                    if model.filterSelected then
+                        List.filter (isMember model.selected)
+
+                    else
+                        List.filter (caselessContains model.search)
+            in
+            { model | fonts = Fonts (Paginate.map filter fonts) }
 
 
 caselessContains : String -> String -> Bool
@@ -361,6 +414,31 @@ isMember set comp =
     Set.member comp set
 
 
+pageItem : Msg -> String -> Html Msg
+pageItem msg linkText =
+    li [ class "page-item" ]
+        [ button [ class "page-link", onClick msg ] [ text linkText ]
+        ]
+
+
+pagerOptions =
+    { innerWindow = 1
+    , outerWindow = 1
+    , pageNumberView = pageNumberItem
+    , gapView =
+        li [ class "page-item", class "disabled" ]
+            [ button [ class "page-link" ] [ text "..." ]
+            ]
+    }
+
+
+pageNumberItem : Int -> Bool -> Html Msg
+pageNumberItem index isActive =
+    li [ classList [ ( "page-item", True ), ( "active", isActive ) ] ]
+        [ button [ class "page-link", onClick (GoToIndex index) ] [ text (String.fromInt index) ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div []
@@ -397,28 +475,29 @@ view model =
                             ]
                         ]
 
-                Fonts fontList ->
-                    if List.isEmpty fontList then
-                        div [] [ text "No Fonts were found." ]
+                Empty ->
+                    div [] [ text "No Fonts were found." ]
 
-                    else
-                        div [ class "row" ]
-                            (fontList
-                                |> List.filter
-                                    (skipFilter
-                                        (not model.filterSelected)
-                                        (caselessContains model.search)
-                                    )
-                                |> List.filter
-                                    (skipFilter
-                                        model.filterSelected
-                                        (isMember model.selected)
-                                    )
-                                |> List.map
-                                    (renderFont
-                                        model
-                                    )
-                            )
+                Fonts fontList ->
+                    div []
+                        [ div [ class "row" ]
+                            (List.map (renderFont model) <| Paginate.page fontList)
+                        , div [ class "row", class "my-5" ]
+                            [ div
+                                [ class "col"
+                                , class "d-flex"
+                                , class "justify-content-center"
+                                ]
+                                [ nav []
+                                    [ ul [ class "pagination" ]
+                                        (pageItem PreviousPage "Previous"
+                                            :: Paginate.elidedPager pagerOptions fontList
+                                            ++ [ pageItem NextPage "Next" ]
+                                        )
+                                    ]
+                                ]
+                            ]
+                        ]
             ]
         ]
 
