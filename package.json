@@ -70,9 +70,11 @@
     "bootstrap": "^4.4.1",
     "cross-env": "^7.0.2",
     "electron-window-state": "^5.0.3",
+    "lit-element": "^2.4.0",
     "node-fetch": "^2.6.1",
     "ramda": "^0.27.0",
     "system-font-families": "^0.4.1",
-    "ttfinfo": "git+https://github.com/aquacash5/ttfinfo.git"
+    "ttfinfo": "git+https://github.com/aquacash5/ttfinfo.git",
+    "uuid": "^8.3.0"
   }
 }
