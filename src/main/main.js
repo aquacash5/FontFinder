@@ -42,6 +42,47 @@ function getSystemInfo(e) {
   }
 }
 
+const systemFontsTemp = new Promise((resolve) => {
+  const fontsOnComputer = new SystemFonts({
+    customDirs: [
+      path.join(
+        os.homedir(),
+        "AppData",
+        "Local",
+        "Microsoft",
+        "Windows",
+        "Fonts"
+      ),
+      path.join(os.homedir(), "Documents", "temp"),
+    ],
+  }).getFontsExtendedSync();
+
+  const fontUrls = R.pipe(
+    R.map(R.pipe(R.prop("files"), R.values)),
+    R.flatten,
+    R.uniq,
+    R.reduce((acc, cur) => ({ ...acc, [cur]: cur }), {}),
+    R.map(
+      R.pipe(
+        ttfinfo.getSync,
+        R.path(["tables", "name"]),
+        getSystemInfo,
+        R.prop("family")
+      )
+    )
+  )(fontsOnComputer);
+
+  console.log(fontUrls);
+
+  // .map(ttfinfo.getSync)
+  // .map(R.path(["tables", "name"]))
+  // .map(getSystemInfo)
+  // .map(R.prop("family"))
+  // .unique()
+  // .filter(R.identity);
+  resolve();
+});
+
 const systemFonts = new Promise((resolve) => {
   resolve(
     new SystemFonts({
