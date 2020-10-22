@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
 const config = () => {
-  const env = process.env.NODE_ENV;
+  const env = process.env.NODE_ENV || "production";
   return {
     mode: env,
     entry: "./src/renderer/renderer.js",

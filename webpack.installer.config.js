@@ -1,9 +1,10 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
-const config = (env) => {
+const config = () => {
+  const env = process.env.NODE_ENV || "production";
   return {
-    mode: "none",
+    mode: env,
     entry: "./src/installer/installer.js",
     target: "electron-renderer",
     output: {
