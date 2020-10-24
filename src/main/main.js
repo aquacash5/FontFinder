@@ -22,7 +22,10 @@ async function systemFonts() {
     });
 
     const fonts = await Promise.all(fontsOnComputer.map(loadFont));
-    return fonts.map((f) => f.tables.name.fontFamily.en).unique();
+    return fonts
+      .map((f) => f.tables.name.fontFamily.en)
+      .unique()
+      .sort();
   } catch (err) {}
   return [];
 }
