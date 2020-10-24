@@ -47,7 +47,7 @@
     "autoprefixer": "^9.7.6",
     "css-loader": "^3.5.3",
     "dotenv": "^8.2.0",
-    "electron": "^10.1.1",
+    "electron": "^10.1.5",
     "electron-packager": "^15.1.0",
     "electron-winstaller": "^4.0.0",
     "electron-wix-msi": "^2.2.0",

@@ -6,11 +6,11 @@ import ttfinfo from "ttfinfo";
 import path from "path";
 import os from "os";
 import * as R from "ramda";
-import { onMac, onWindows } from "./utils";
+import { isDev, onMac, onWindows } from "./utils";
 import dotenv from "dotenv";
 dotenv.config();
 
-Array.prototype.unique = function() {
+Array.prototype.unique = function () {
   return Array.from(new Set(this));
 };
 
@@ -101,8 +101,10 @@ function main() {
       minWidth: 900,
       minHeight: 600,
       fullscreenable: false,
+      openDevTools: isDev,
       webPreferences: {
         nodeIntegration: true,
+        nativeWindowOpen: isDev,
       },
     });
 
@@ -123,7 +125,7 @@ function main() {
       mainWindow.loadURL(`file://${__dirname}/renderer.html`);
     }
 
-    mainWindow.on("closed", function() {
+    mainWindow.on("closed", function () {
       mainWindow = null;
     });
   }
