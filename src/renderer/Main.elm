@@ -275,7 +275,7 @@ renderFont model font =
                             , ( "font-weight-bold", model.bold )
                             , ( "font-italic", model.italic )
                             ]
-                        , style "font-family" font
+                        , style "font-family" ("\"" ++ font ++ "\"")
                         , style "font-size" (getFontStyle model.fontSize)
                         ]
                         [ text
