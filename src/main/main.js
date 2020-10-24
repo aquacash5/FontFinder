@@ -2,8 +2,6 @@ import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import windowStateKeeper from "electron-window-state";
 import getSystemFonts from "get-system-fonts";
 import { load } from "opentype.js";
-import path from "path";
-import os from "os";
 import { handleSquirrelEvent } from "./handleSquirrel";
 import { isDev, onMac, onWindows } from "./utils";
 
@@ -20,13 +18,11 @@ async function loadFont(url) {
 async function systemFonts() {
   try {
     const fontsOnComputer = await getSystemFonts({
-      additionalFolders: [path.join(os.homedir(), "Documents", "temp")],
       extensions: ["ttf", "otf"],
     });
 
     const fonts = await Promise.all(fontsOnComputer.map(loadFont));
-    console.log(fonts[0].tables.name);
-    return fonts.map((f) => f.tables.name.fontFamily.en);
+    return fonts.map((f) => f.tables.name.fontFamily.en).unique();
   } catch (err) {}
   return [];
 }
