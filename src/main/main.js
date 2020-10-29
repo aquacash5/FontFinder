@@ -1,7 +1,10 @@
 import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import windowStateKeeper from "electron-window-state";
-import getSystemFonts from "get-system-fonts";
-import { load } from "opentype.js";
+import SystemFonts from "system-font-families";
+import ttfinfo from "ttfinfo";
+import path from "path";
+import os from "os";
+import * as R from "ramda";
 import { handleSquirrelEvent } from "./handleSquirrel";
 import { isDev, onMac, onWindows } from "./utils";
 
@@ -9,26 +12,61 @@ Array.prototype.unique = function () {
   return Array.from(new Set(this));
 };
 
-async function loadFont(url) {
-  return await new Promise((resolve, reject) =>
-    load(url, (err, font) => (err ? reject(err) : resolve(font)))
-  );
+function getSystemInfo(e) {
+  if (onWindows) {
+    if (!R.isEmpty(e.microsoft)) {
+      return e.microsoft;
+    } else if (!R.isEmpty(e.unicode)) {
+      return e.unicode;
+    } else {
+      return e.macintosh;
+    }
+  } else if (onMac) {
+    if (!R.isEmpty(e.macintosh)) {
+      return e.macintosh;
+    } else if (!R.isEmpty(e.unicode)) {
+      return e.unicode;
+    } else {
+      return e.microsoft;
+    }
+  } else {
+    if (!R.isEmpty(e.unicode)) {
+      return e.unicode;
+    } else if (!R.isEmpty(e.microsoft)) {
+      return e.microsoft;
+    } else {
+      return e.macintosh;
+    }
+  }
 }
 
-async function systemFonts() {
-  try {
-    const fontsOnComputer = await getSystemFonts({
-      extensions: ["ttf", "otf"],
-    });
-
-    const fonts = await Promise.all(fontsOnComputer.map(loadFont));
-    return fonts
-      .map((f) => f.tables.name.fontFamily.en)
+const systemFonts = new Promise((resolve) => {
+  resolve(
+    new SystemFonts({
+      customDirs: [
+        path.join(
+          os.homedir(),
+          "AppData",
+          "Local",
+          "Microsoft",
+          "Windows",
+          "Fonts"
+        ),
+      ],
+    })
+      .getFontsExtendedSync()
+      .map(R.prop("files"))
+      .map(R.values)
+      .flat()
       .unique()
-      .sort();
-  } catch (err) {}
-  return [];
-}
+      .map(ttfinfo.getSync)
+      .map(R.path(["tables", "name"]))
+      .map(getSystemInfo)
+      .map(R.prop("family"))
+      .unique()
+      .filter(R.identity)
+  );
+});
 
 function main() {
   // this should be placed at top of main.js to handle setup events quickly
@@ -42,7 +80,7 @@ function main() {
   app.on("ready", createWindow); // called when electron has initialized
 
   ipcMain.on("main-page-start", async (event) => {
-    event.reply("system-fonts", await systemFonts());
+    event.reply("system-fonts", await systemFonts);
   });
 
   // This will create our app window, no surprise there
