@@ -99,7 +99,7 @@ function main() {
       minWidth: 900,
       minHeight: 600,
       fullscreenable: false,
-      openDevTools: isDev,
+      devTools: isDev,
       webPreferences: {
         nodeIntegration: true,
         nativeWindowOpen: isDev,
@@ -115,10 +115,10 @@ function main() {
 
     // display the index.html file
     // mainWindow.loadFile("index.html");
-    if (process.env.NODE_ENV === "development") {
+    if (isDev) {
       mainWindow.loadURL("http://localhost:8080/renderer.html");
       // open dev tools by default so we can see any console errors
-      mainWindow.webContents.openDevTools();
+      mainWindow.webContents.openDevTools({ mode: "detach" });
     } else {
       mainWindow.loadURL(`file://${__dirname}/renderer.html`);
     }
