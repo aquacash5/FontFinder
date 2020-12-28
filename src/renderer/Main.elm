@@ -45,6 +45,7 @@ type alias Model =
 
 type FontList
     = Loading
+    | Percent Int
     | Empty
     | Fonts (Paginate.PaginatedList String)
 
@@ -54,6 +55,9 @@ whenFonts callback fontList =
     case fontList of
         Loading ->
             Loading
+
+        Percent per ->
+            Percent per
 
         Empty ->
             Empty
@@ -88,6 +92,7 @@ init _ =
 
 type Msg
     = AddFonts (List String)
+    | UpdateProgress Int
     | ChangeExample String
     | ChangeSearch String
     | ChangeFontSize String
@@ -111,6 +116,20 @@ update msg model =
 
             else
                 ( { model | fonts = Fonts (Paginate.fromList 24 fontList) }, Cmd.none )
+
+        UpdateProgress progress ->
+            case model.fonts of
+                Loading ->
+                    ( { model | fonts = Percent progress }, Cmd.none )
+
+                Percent _ ->
+                    ( { model | fonts = Percent progress }, Cmd.none )
+
+                Empty ->
+                    ( model, Cmd.none )
+
+                Fonts _ ->
+                    ( model, Cmd.none )
 
         ChangeExample ex ->
             ( { model | example = ex }, Cmd.none )
@@ -170,7 +189,10 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    receiveFonts AddFonts
+    Sub.batch
+        [ receiveFonts AddFonts
+        , receiveProgress UpdateProgress
+        ]
 
 
 
@@ -184,6 +206,9 @@ filterFonts model =
             model
 
         Empty ->
+            model
+
+        Percent _ ->
             model
 
         Fonts fonts ->
@@ -453,7 +478,39 @@ view model =
                                         , class "progress-bar-striped"
                                         , class "progress-bar-animated"
                                         , class "bg-info"
+                                        , class "instant-time"
                                         , style "width" "100%"
+                                        ]
+                                        []
+                                    ]
+                                ]
+                            ]
+                        ]
+
+                Percent progress ->
+                    div
+                        [ class "row"
+                        , class "justify-content-md-center"
+                        ]
+                        [ div
+                            [ class "col-lg-6"
+                            , class "col-md-8"
+                            , class "col-sm-auto"
+                            ]
+                            [ div
+                                [ class "alert"
+                                , class "alert-info"
+                                , class "m-5"
+                                ]
+                                [ text "Loading..."
+                                , div [ class "progress" ]
+                                    [ div
+                                        [ class "progress-bar"
+                                        , class "progress-bar-striped"
+                                        , class "progress-bar-animated"
+                                        , class "bg-info"
+                                        , classList [ ( "instant-time", progress <= 1 ) ]
+                                        , style "width" (String.fromInt progress ++ "%")
                                         ]
                                         []
                                     ]
@@ -489,3 +546,6 @@ view model =
 
 
 port receiveFonts : (List String -> msg) -> Sub msg
+
+
+port receiveProgress : (Int -> msg) -> Sub msg
