@@ -1,8 +1,10 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
+const env = process.env.NODE_ENV || "production";
+const isProduction = env === "production";
+
 const config = () => {
-  const env = process.env.NODE_ENV || "production";
   return {
     mode: env,
     entry: "./src/renderer/renderer.js",
@@ -11,6 +13,7 @@ const config = () => {
       path: path.resolve(__dirname, "build"),
       filename: "renderer.js",
     },
+    devtool: isProduction ? undefined : "source-map",
     module: {
       rules: [
         {
@@ -36,7 +39,7 @@ const config = () => {
               // Loader for webpack to process CSS with PostCSS
               loader: "postcss-loader",
               options: {
-                plugins: function() {
+                plugins: function () {
                   return [require("autoprefixer")];
                 },
               },

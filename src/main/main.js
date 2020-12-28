@@ -1,19 +1,34 @@
 import { app, BrowserWindow, Menu, ipcMain } from "electron";
-import windowStateKeeper from "electron-window-state";
+import WindowStateKeeper from "electron-window-state";
 import SystemFonts from "system-font-families";
-import ttfinfo from "ttfinfo";
+import TtfInfo from "ttfinfo";
 import path from "path";
 import os from "os";
 import * as R from "ramda";
 import { handleSquirrelEvent } from "./handleSquirrel";
-import { isDev, onMac, onWindows } from "./utils";
+import { SYSTEM_FONTS_EVENTS, LOADING_FONT_PROGRESS } from "../constants";
+
+const Fonts = new SystemFonts({
+  customDirs: __WINDOWS__
+    ? [
+        path.join(
+          os.homedir(),
+          "AppData",
+          "Local",
+          "Microsoft",
+          "Windows",
+          "Fonts"
+        ),
+      ]
+    : [],
+});
 
 Array.prototype.unique = function () {
   return Array.from(new Set(this));
 };
 
 function getSystemInfo(e) {
-  if (onWindows) {
+  if (__WINDOWS__) {
     if (!R.isEmpty(e.microsoft)) {
       return e.microsoft;
     } else if (!R.isEmpty(e.unicode)) {
@@ -21,7 +36,7 @@ function getSystemInfo(e) {
     } else {
       return e.macintosh;
     }
-  } else if (onMac) {
+  } else if (__MACOS__) {
     if (!R.isEmpty(e.macintosh)) {
       return e.macintosh;
     } else if (!R.isEmpty(e.unicode)) {
@@ -40,52 +55,77 @@ function getSystemInfo(e) {
   }
 }
 
-const systemFonts = new Promise((resolve) => {
-  resolve(
-    new SystemFonts({
-      customDirs: [
-        path.join(
-          os.homedir(),
-          "AppData",
-          "Local",
-          "Microsoft",
-          "Windows",
-          "Fonts"
-        ),
-      ],
-    })
-      .getFontsExtendedSync()
-      .map(R.prop("files"))
-      .map(R.values)
-      .flat()
-      .unique()
-      .map(ttfinfo.getSync)
-      .map(R.path(["tables", "name"]))
-      .map(getSystemInfo)
-      .map(R.prop("family"))
-      .unique()
-      .filter(R.identity)
-  );
-});
+function getTtfInfo(pathOrData) {
+  return new Promise((resolve, reject) => {
+    TtfInfo.get(pathOrData, (err, data) => {
+      err ? reject(err) : resolve(data);
+    });
+  });
+}
+
+const getUniqueFonts = R.pipe(
+  R.map(R.prop("files")),
+  R.map(R.values),
+  R.flatten,
+  R.uniq
+);
+
+const getUniqueFamilies = R.pipe(
+  R.reject(R.pathEq("status", "rejected")),
+  R.map(R.path(["value", "tables", "name"])),
+  R.map(getSystemInfo),
+  R.map(R.prop("family")),
+  R.uniq,
+  R.filter(R.identity)
+);
+
+async function systemFonts(event) {
+  try {
+    const sysFonts = await Fonts.getFontsExtended();
+    const uniqueFontPaths = getUniqueFonts(sysFonts);
+    const ttfInfoList = new Set();
+    let count = 0;
+    let last = 0;
+    for (const fontPath of uniqueFontPaths) {
+      try {
+        count += 1;
+        const percent = Math.floor((count * 100) / uniqueFontPaths.length);
+        if (last !== percent) {
+          last = percent;
+          event.reply(LOADING_FONT_PROGRESS, percent);
+        }
+        ttfInfoList.add(
+          getSystemInfo((await getTtfInfo(fontPath)).tables.name).family
+        );
+      } catch {}
+    }
+    event.reply(SYSTEM_FONTS_EVENTS, Array.from(ttfInfoList));
+  } catch (err) {
+    console.error(err);
+    event.reply(SYSTEM_FONTS_EVENTS, []);
+  }
+}
 
 function main() {
   // this should be placed at top of main.js to handle setup events quickly
-  if (onWindows && handleSquirrelEvent(__dirname)) {
-    // squirrel event handled and app will exit in 1000ms, so don't do anything else
+  if (__WINDOWS__ && handleSquirrelEvent(__dirname)) {
+    // squirrel event handled and app will exit in 1000ms,
+    // so don't do anything else
     return;
   }
 
-  let mainWindow; // saves a global reference to mainWindow so it doesn't get garbage collected
+  // saves a global reference to mainWindow so it doesn't get garbage collected
+  let mainWindow;
 
   app.on("ready", createWindow); // called when electron has initialized
 
   ipcMain.on("main-page-start", async (event) => {
-    event.reply("system-fonts", await systemFonts);
+    systemFonts(event);
   });
 
   // This will create our app window, no surprise there
   function createWindow() {
-    let mainWindowState = windowStateKeeper({
+    let mainWindowState = WindowStateKeeper({
       defaultWidth: 1024,
       defaultHeight: 700,
       fullScreen: false,
@@ -99,10 +139,10 @@ function main() {
       minWidth: 900,
       minHeight: 600,
       fullscreenable: false,
-      devTools: isDev,
+      devTools: __DEVELOPMENT__,
       webPreferences: {
         nodeIntegration: true,
-        nativeWindowOpen: isDev,
+        nativeWindowOpen: __DEVELOPMENT__,
       },
     });
 
@@ -115,7 +155,7 @@ function main() {
 
     // display the index.html file
     // mainWindow.loadFile("index.html");
-    if (isDev) {
+    if (__DEVELOPMENT__) {
       mainWindow.loadURL("http://localhost:8080/renderer.html");
       // open dev tools by default so we can see any console errors
       mainWindow.webContents.openDevTools({ mode: "detach" });
@@ -132,12 +172,12 @@ function main() {
 
   // when you close all the windows on a non-mac OS it quits the app
   app.on("window-all-closed", () => {
-    if (!onMac) {
+    if (!__MACOS__) {
       app.quit();
     }
   });
 
-  // if there is no mainWindow it creates one (like when you click the dock icon)
+  // if there is no mainWindow it creates one
   app.on("activate", () => {
     if (mainWindow === null) {
       createWindow();
