@@ -509,7 +509,7 @@ view model =
                                         , class "progress-bar-striped"
                                         , class "progress-bar-animated"
                                         , class "bg-info"
-                                        , classList [ ( "instant-time", progress <= 1 ) ]
+                                        , classList [ ( "instant-time", progress < 1 ) ]
                                         , style "width" (String.fromInt progress ++ "%")
                                         ]
                                         []
