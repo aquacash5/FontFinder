@@ -16,4 +16,12 @@ ipcRenderer.on("ELM-EVENT", (event, { port, args }) => {
   fontfinder.ports[port].send(args);
 });
 
+Object.entries(fontfinder.ports)
+  .filter(([_, v]) => v.hasOwnProperty("subscribe"))
+  .forEach(([k, { subscribe }]) => {
+    subscribe((args) => {
+      ipcRenderer.send(k, args);
+    });
+  });
+
 ipcRenderer.send("main-page-start");

@@ -23,10 +23,7 @@ const config = () => {
             { loader: "elm-hot-webpack-loader" },
             {
               loader: "elm-webpack-loader",
-              options:
-                env === "development"
-                  ? { debug: true, optimize: false }
-                  : { debug: false, optimize: true },
+              options: { debug: !isProduction, optimize: isProduction },
             },
           ],
         },

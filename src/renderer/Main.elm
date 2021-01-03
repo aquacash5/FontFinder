@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Html, button, div, form, h5, input, li, nav, p, span, text, ul)
 import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onBlur, onClick, onInput)
+import Json.Encode as Encode exposing (..)
 import Paginate exposing (..)
 import Set
 
@@ -99,12 +100,14 @@ type Msg
     | ConfirmFontSize
     | TogglePresenter Presenter
     | AddSelectedFont String
+    | ResetSelectedFonts (List String)
     | RemoveSelectedFont String
     | SetFilterSelected Bool
     | ClearSelected
     | NextPage
     | PreviousPage
     | GoToIndex Int
+    | SaveSelected
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -163,6 +166,9 @@ update msg model =
         AddSelectedFont fontName ->
             ( { model | selected = Set.insert fontName model.selected }, Cmd.none )
 
+        ResetSelectedFonts fontNames ->
+            ( { model | selected = Set.fromList fontNames }, Cmd.none )
+
         RemoveSelectedFont fontName ->
             ( { model | selected = Set.remove fontName model.selected }, Cmd.none )
 
@@ -171,6 +177,9 @@ update msg model =
 
         ClearSelected ->
             ( { model | selected = Set.empty, filterSelected = False }, Cmd.none )
+
+        SaveSelected ->
+            ( model, saveSelected (Set.toList model.selected) )
 
         -- Pagination
         NextPage ->
@@ -192,6 +201,7 @@ subscriptions _ =
     Sub.batch
         [ receiveFonts AddFonts
         , receiveProgress UpdateProgress
+        , receiveSelected ResetSelectedFonts
         ]
 
 
@@ -549,3 +559,9 @@ port receiveFonts : (List String -> msg) -> Sub msg
 
 
 port receiveProgress : (Int -> msg) -> Sub msg
+
+
+port receiveSelected : (List String -> msg) -> Sub msg
+
+
+port saveSelected : List String -> Cmd msg

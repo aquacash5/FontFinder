@@ -1,9 +1,10 @@
-import { app, BrowserWindow, Menu, ipcMain } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, dialog } from "electron";
 import WindowStateKeeper from "electron-window-state";
 import SystemFonts from "system-font-families";
-import TtfInfo from "ttfinfo";
+import ttfInfo from "ttf-info";
 import path from "path";
 import os from "os";
+import { promises as fs } from "fs";
 import * as R from "ramda";
 import { handleSquirrelEvent } from "./handleSquirrel";
 
@@ -21,10 +22,6 @@ const Fonts = new SystemFonts({
       ]
     : [],
 });
-
-Array.prototype.unique = function () {
-  return Array.from(new Set(this));
-};
 
 function getSystemInfo(e) {
   if (__WINDOWS__) {
@@ -56,7 +53,7 @@ function getSystemInfo(e) {
 
 function getTtfInfo(pathOrData) {
   return new Promise((resolve, reject) => {
-    TtfInfo.get(pathOrData, (err, data) => {
+    ttfInfo.get(pathOrData, (err, data) => {
       err ? reject(err) : resolve(data);
     });
   });
@@ -116,6 +113,21 @@ function main() {
     systemFonts(event);
   });
 
+  ipcMain.on("saveSelected", async (event, args) => {
+    const result = await dialog.showSaveDialog(mainWindow, {
+      defaultPath: app.getPath("documents"),
+      title: "Save Font Selections",
+      filters: [
+        { name: "FontFinder Selections", extensions: ["ffs"] },
+        { name: "All Files", extensions: ["*"] },
+      ],
+      properties: ["createDirectory", "showOverwriteConfirmation"],
+    });
+    if (!result.canceled) {
+      await fs.writeFile(result.filePath, args);
+    }
+  });
+
   // This will create our app window, no surprise there
   function createWindow() {
     let mainWindowState = WindowStateKeeper({
@@ -165,9 +177,7 @@ function main() {
 
   // when you close all the windows on a non-mac OS it quits the app
   app.on("window-all-closed", () => {
-    if (!__MACOS__) {
-      app.quit();
-    }
+    app.quit();
   });
 
   // if there is no mainWindow it creates one
