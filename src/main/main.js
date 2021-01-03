@@ -6,7 +6,6 @@ import path from "path";
 import os from "os";
 import * as R from "ramda";
 import { handleSquirrelEvent } from "./handleSquirrel";
-import { SYSTEM_FONTS_EVENTS, LOADING_FONT_PROGRESS } from "../constants";
 
 const Fonts = new SystemFonts({
   customDirs: __WINDOWS__
@@ -70,39 +69,33 @@ const getUniqueFonts = R.pipe(
   R.uniq
 );
 
-const getUniqueFamilies = R.pipe(
-  R.reject(R.pathEq("status", "rejected")),
-  R.map(R.path(["value", "tables", "name"])),
-  R.map(getSystemInfo),
-  R.map(R.prop("family")),
-  R.uniq,
-  R.filter(R.identity)
-);
-
 async function systemFonts(event) {
   try {
     const sysFonts = await Fonts.getFontsExtended();
     const uniqueFontPaths = getUniqueFonts(sysFonts);
     const ttfInfoList = new Set();
     let count = 0;
-    let last = 0;
+    let last = -Infinity;
     for (const fontPath of uniqueFontPaths) {
       try {
         count += 1;
         const percent = Math.floor((count * 100) / uniqueFontPaths.length);
         if (last !== percent) {
           last = percent;
-          event.reply(LOADING_FONT_PROGRESS, percent);
+          event.reply("ELM-EVENT", { port: "receiveProgress", args: percent });
         }
         ttfInfoList.add(
           getSystemInfo((await getTtfInfo(fontPath)).tables.name).family
         );
       } catch {}
     }
-    event.reply(SYSTEM_FONTS_EVENTS, Array.from(ttfInfoList));
+    event.reply("ELM-EVENT", {
+      port: "receiveFonts",
+      args: Array.from(ttfInfoList),
+    });
   } catch (err) {
     console.error(err);
-    event.reply(SYSTEM_FONTS_EVENTS, []);
+    event.reply("ELM-EVENT", { port: "receiveFonts", args: [] });
   }
 }
 

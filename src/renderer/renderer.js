@@ -2,7 +2,6 @@
 
 import { Elm } from "./Main.elm";
 import { ipcRenderer } from "electron";
-import { SYSTEM_FONTS_EVENTS, LOADING_FONT_PROGRESS } from "../constants";
 import "./styles/renderer.scss";
 
 // get a reference to the div where we will show our UI
@@ -13,12 +12,8 @@ document.body.appendChild(container);
 // and keep a reference for communicating with the app
 let fontfinder = Elm.Main.init({ node: container });
 
-ipcRenderer.on(SYSTEM_FONTS_EVENTS, (event, args) => {
-  fontfinder.ports.receiveFonts.send(args);
-});
-
-ipcRenderer.on(LOADING_FONT_PROGRESS, (event, args) => {
-  fontfinder.ports.receiveProgress.send(args);
+ipcRenderer.on("ELM-EVENT", (event, { port, args }) => {
+  fontfinder.ports[port].send(args);
 });
 
 ipcRenderer.send("main-page-start");
