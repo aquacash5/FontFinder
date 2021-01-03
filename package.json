@@ -73,6 +73,6 @@
     "path": "^0.12.7",
     "ramda": "^0.27.1",
     "system-font-families": "^0.4.1",
-    "ttf-info": "github:aquacash5/ttfinfo"
+    "ttfinfo": "git+https://github.com/aquacash5/ttfinfo.git"
   }
 }

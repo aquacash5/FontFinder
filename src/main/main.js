@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu, ipcMain, dialog } from "electron";
 import WindowStateKeeper from "electron-window-state";
 import SystemFonts from "system-font-families";
-import ttfInfo from "ttf-info";
+import ttfInfo from "ttfinfo";
 import path from "path";
 import os from "os";
 import { promises as fs } from "fs";
