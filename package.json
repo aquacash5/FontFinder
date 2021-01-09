@@ -43,7 +43,6 @@
   },
   "homepage": "https://github.com/aquacash5/FontFinder#readme",
   "devDependencies": {
-    "@webpack-cli/init": "^1.0.2",
     "autoprefixer": "^9.7.6",
     "css-loader": "^3.5.3",
     "dotenv": "^8.2.0",
