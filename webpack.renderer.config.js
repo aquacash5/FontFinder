@@ -48,8 +48,8 @@ const config = () => {
     },
     plugins: [
       new HtmlWebpackPlugin({
-        title: "Font Finder",
         filename: "renderer.html",
+        title: null,
       }),
     ],
   };
