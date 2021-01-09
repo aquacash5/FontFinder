@@ -118,7 +118,7 @@ function main() {
   }
 
   function calcTitle() {
-    const modified = unsavedModifications ? "*" : "";
+    const modified = unsavedModifications ? "●" : "";
     const saveFile = path.basename(savePath);
     return `Font Finder | ${saveFile}${modified}`;
   }
@@ -239,7 +239,7 @@ function main() {
     // display the index.html file
     // mainWindow.loadFile("index.html");
     if (__DEVELOPMENT__) {
-      mainWindow.loadURL("http://localhost:8080/renderer.html");
+      mainWindow.loadURL("http://localhost:9000/renderer.html");
       // open dev tools by default so we can see any console errors
       mainWindow.webContents.openDevTools({ mode: "detach" });
     } else {
