@@ -107,7 +107,6 @@ type Msg
     | NextPage
     | PreviousPage
     | GoToIndex Int
-    | SaveSelected
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -164,22 +163,31 @@ update msg model =
                     ( { model | italic = not model.italic }, Cmd.none )
 
         AddSelectedFont fontName ->
-            ( { model | selected = Set.insert fontName model.selected }, Cmd.none )
+            let
+                newSelectedSet =
+                    Set.insert fontName model.selected
+            in
+            ( { model | selected = newSelectedSet }, saveSelected (Set.toList newSelectedSet) )
 
         ResetSelectedFonts fontNames ->
             ( { model | selected = Set.fromList fontNames }, Cmd.none )
 
         RemoveSelectedFont fontName ->
-            ( { model | selected = Set.remove fontName model.selected }, Cmd.none )
+            let
+                newSelectedSet =
+                    Set.remove fontName model.selected
+            in
+            ( { model | selected = newSelectedSet }, saveSelected (Set.toList newSelectedSet) )
+
+        ClearSelected ->
+            let
+                newSelectedSet =
+                    Set.empty
+            in
+            ( { model | selected = newSelectedSet, filterSelected = False }, saveSelected (Set.toList newSelectedSet) )
 
         SetFilterSelected enabled ->
             ( { model | filterSelected = enabled }, Cmd.none )
-
-        ClearSelected ->
-            ( { model | selected = Set.empty, filterSelected = False }, Cmd.none )
-
-        SaveSelected ->
-            ( model, saveSelected (Set.toList model.selected) )
 
         -- Pagination
         NextPage ->
