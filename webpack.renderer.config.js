@@ -3,6 +3,7 @@ const path = require("path");
 
 const env = process.env.NODE_ENV || "production";
 const isProduction = env === "production";
+const buildDirectory = path.join(__dirname, "build");
 
 const config = () => {
   return {
@@ -10,7 +11,7 @@ const config = () => {
     entry: "./src/renderer/renderer.js",
     target: "electron-renderer",
     output: {
-      path: path.resolve(__dirname, "build"),
+      path: buildDirectory,
       filename: "renderer.js",
     },
     devtool: isProduction ? undefined : "source-map",
@@ -20,7 +21,6 @@ const config = () => {
           test: /\.elm$/,
           exclude: [/elm-stuff/, /node_modules/],
           use: [
-            { loader: "elm-hot-webpack-loader" },
             {
               loader: "elm-webpack-loader",
               options: { debug: !isProduction, optimize: isProduction },
@@ -52,6 +52,11 @@ const config = () => {
         title: null,
       }),
     ],
+    devServer: {
+      contentBase: buildDirectory,
+      compress: true,
+      port: 9000,
+    },
   };
 };
 
