@@ -2,7 +2,7 @@
   "name": "dev.kylebloom.fontfinder",
   "private": true,
   "productName": "Font Finder",
-  "version": "1.6.4",
+  "version": "1.6.6",
   "description": "An application for viewing and searching the system fonts.",
   "main": "build/main.js",
   "scripts": {
@@ -35,7 +35,11 @@
     "search",
     "viewer"
   ],
-  "author": "Kyle Bloom (kylejbloom@gmail.com)",
+  "author": {
+    "name": "Kyle Bloom",
+    "email": "kylejbloom@gmail.com",
+    "url": "https://github.com/aquacash5"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/aquacash5/FontFinder/issues"

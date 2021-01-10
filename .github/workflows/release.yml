@@ -16,9 +16,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v1
-        if: contains(matrix.os, 'ubuntu')
       # TODO: When actions/setup-node fixes https://github.com/actions/setup-node/issues/150
       #       Move id: node-setup to actions/setup-node and remove echo
       - name: Setup Node 15
