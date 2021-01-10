@@ -42,6 +42,9 @@ jobs:
           BUILD_PACKAGE: "true"
       - name: Electron Builder
         uses: samuelmeuli/action-electron-builder@v1
+        env:
+          NODE_ENV: "production"
+          BUILD_PACKAGE: "true"
         with:
           args: "--config electron-build.config.js"
           github_token: ${{ secrets.GITHUB_TOKEN }}
