@@ -35,7 +35,11 @@
     "search",
     "viewer"
   ],
-  "author": "Kyle Bloom (kylejbloom@gmail.com)",
+  "author": {
+    "name": "Kyle Bloom",
+    "email": "kylejbloom@gmail.com",
+    "url": "https://github.com/aquacash5"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/aquacash5/FontFinder/issues"
