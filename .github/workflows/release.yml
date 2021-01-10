@@ -34,6 +34,7 @@ jobs:
       - name: Electron Builder
         run: npm run dist
         env:
+          GH_TOKEN: ${{ secrets.token }}
           CSC_LINK: ${{ secrets.WINDOWS_CERTS }}
           CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTS_PASSWORD }}
 
@@ -62,7 +63,8 @@ jobs:
         if: steps.node_modules_cache.outputs.cache-hit != 'true'
       - name: Electron Builder
         run: npm run dist
-        # env:
+        env:
+          GH_TOKEN: ${{ secrets.token }}
         #   CSC_LINK: ${{ secrets.WINDOWS_CERTS }}
         #   CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTS_PASSWORD }}
 
@@ -91,3 +93,5 @@ jobs:
         if: steps.node_modules_cache.outputs.cache-hit != 'true'
       - name: Electron Builder
         run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.token }}
