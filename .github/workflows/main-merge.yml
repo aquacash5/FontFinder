@@ -29,6 +29,6 @@ jobs:
         with:
           tag_name: v${{ steps.package-version.outputs.current-version}}
           release_name: Version ${{ steps.package-version.outputs.current-version}}
-          commitish: master
+          commitish: main
           draft: false
           prerelease: false
