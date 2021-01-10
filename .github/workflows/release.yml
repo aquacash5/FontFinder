@@ -37,6 +37,9 @@ jobs:
         if: steps.node_modules_cache.outputs.cache-hit != 'true'
       - name: Electron Builder
         uses: samuelmeuli/action-electron-builder@v1
+        env:
+          NODE_ENV: "production"
+          BUILD_PACKAGE: "true"
         with:
           build_script_name: build
           args: "--config electron-build.config.js"
