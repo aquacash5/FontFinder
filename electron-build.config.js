@@ -55,7 +55,11 @@ module.exports = {
   linux: {
     target: [
       {
-        target: "snap",
+        target: "deb",
+        arch: "x64",
+      },
+      {
+        target: "rpm",
         arch: "x64",
       },
     ],
