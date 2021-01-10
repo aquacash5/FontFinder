@@ -42,12 +42,10 @@ jobs:
           BUILD_PACKAGE: "true"
       - name: Electron Builder
         uses: samuelmeuli/action-electron-builder@v1
-        env:
-          NODE_ENV: "production"
-          BUILD_PACKAGE: "true"
         with:
           args: "--config electron-build.config.js"
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          skipBuild: true
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
           windows_certs: ${{ secrets.WINDOWS_CERTS }}
           windows_certs_password: ${{ secrets.WINDOWS_CERTS_PASSWORD }}
