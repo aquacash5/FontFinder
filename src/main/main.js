@@ -100,7 +100,7 @@ async function systemFonts() {
     }
     mainEvent.reply("ELM-EVENT", {
       port: "receiveFonts",
-      args: Array.from(ttfInfoList),
+      args: Array.from(ttfInfoList).filter(R.identity),
     });
   } catch (err) {
     console.error(err);
