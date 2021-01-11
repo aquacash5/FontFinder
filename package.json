@@ -12,7 +12,7 @@
     "build:renderer": "webpack --config webpack.renderer.config.js",
     "build:renderer:dev": "webpack-dev-server --content-base ./build --config webpack.renderer.config.js",
     "build:main": "webpack --config webpack.main.config.js",
-    "build:main:run": "run-s -l -n build:main start:electron",
+    "build:main:run": "run-s build:main start:electron",
     "build:icons": "npx electron-icon-builder --input=src/assets/icon.png --output=src/assets",
     "dist": "cross-env BUILD_PACKAGE=true run-s build dist:project",
     "dist:dev": "cross-env NODE_ENV=development npm run dist",
