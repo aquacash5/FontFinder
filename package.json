@@ -2,7 +2,7 @@
   "name": "dev.kylebloom.fontfinder",
   "private": true,
   "productName": "Font Finder",
-  "version": "1.6.17",
+  "version": "1.6.18",
   "description": "An application for viewing and searching the system fonts.",
   "main": "build/main.js",
   "scripts": {
