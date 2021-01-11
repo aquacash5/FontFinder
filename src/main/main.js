@@ -200,6 +200,7 @@ function createWindow() {
   mainWindowState.manage(mainWindow);
 
   const mainMenu = Menu.buildFromTemplate([
+    ...(__MACOS__ ? [{ role: "appMenu" }] : []),
     {
       label: "File",
       submenu: [
@@ -225,7 +226,7 @@ function createWindow() {
     },
   ]);
 
-  mainWindow.setMenu(mainMenu);
+  Menu.setApplicationMenu(mainMenu);
 
   // display the index.html file
   // mainWindow.loadFile("index.html");
