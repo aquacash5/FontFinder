@@ -100,7 +100,7 @@ async function systemFonts() {
     }
     mainEvent.reply("ELM-EVENT", {
       port: "receiveFonts",
-      args: Array.from(ttfInfoList),
+      args: Array.from(ttfInfoList).filter(R.identity),
     });
   } catch (err) {
     console.error(err);
@@ -200,6 +200,7 @@ function createWindow() {
   mainWindowState.manage(mainWindow);
 
   const mainMenu = Menu.buildFromTemplate([
+    ...(__MACOS__ ? [{ role: "appMenu" }] : []),
     {
       label: "File",
       submenu: [
@@ -225,7 +226,7 @@ function createWindow() {
     },
   ]);
 
-  mainWindow.setMenu(mainMenu);
+  Menu.setApplicationMenu(mainMenu);
 
   // display the index.html file
   // mainWindow.loadFile("index.html");
