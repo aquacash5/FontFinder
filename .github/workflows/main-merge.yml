@@ -31,4 +31,4 @@ jobs:
           release_name: FontFinder v${{ steps.package-version.outputs.current-version}}
           commitish: main
           draft: false
-          prerelease: false
+          prerelease: true
