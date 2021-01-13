@@ -27,8 +27,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_EVENT_PROPAGATION_TOKEN }}
         with:
-          tag_name: v${{ steps.package-version.outputs.current-version}}
-          release_name: FontFinder v${{ steps.package-version.outputs.current-version}}
+          tag_name: v${{ steps.package-version.outputs.current-version}}-pre
+          release_name: FontFinder v${{ steps.package-version.outputs.current-version}}-pre
           commitish: main
           draft: false
           prerelease: true
