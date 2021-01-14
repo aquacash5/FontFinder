@@ -1,7 +1,6 @@
 const dotenv = require("dotenv");
 const pjson = require("./package.json");
 const isDevelopment = (process.env.NODE_ENV || "production") === "development";
-const isPreRelease = (process.env.PRE_RELEASE || "true") === "true";
 
 if (isDevelopment) {
   dotenv.config();
@@ -10,14 +9,7 @@ if (isDevelopment) {
 module.exports = {
   appId: pjson.name,
   productName: pjson.productName,
-  publish: [
-    {
-      provider: "github",
-      private: false,
-      releaseType: isPreRelease ? "prerelease" : "release",
-      publishAutoUpdate: false,
-    },
-  ],
+  afterAllArtifactBuild: "./afterAllArtifactBuild.js",
   directories: {
     buildResources: "build",
     output: "dist",
@@ -39,10 +31,10 @@ module.exports = {
         target: "nsis",
         arch: "x64",
       },
-      {
-        target: "msi",
-        arch: "x64",
-      },
+      // {
+      //   target: "msi",
+      //   arch: "x64",
+      // },
     ],
     icon: "src/assets/icons/win/icon.ico",
   },

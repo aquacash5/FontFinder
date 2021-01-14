@@ -93,6 +93,8 @@ jobs:
         if: steps.node_modules_cache.outputs.cache-hit != 'true'
       - name: Electron Builder
         run: npm run dist
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRE_RELEASE: ${{ github.event.release.prerelease }}
+      - name: Upload Release Assets
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: "publish/*"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

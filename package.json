@@ -20,10 +20,11 @@
     "upgrade": "run-s -l -n upgrade:elm upgrade:npm",
     "upgrade:elm": "npx elm-json upgrade",
     "upgrade:npm": "npm update",
-    "clean": "run-s clean:build clean:dist clean:installer",
+    "clean": "run-s clean:build clean:dist clean:installer clean:publish",
     "clean:build": "shx rm -rf ./build",
     "clean:dist": "shx rm -rf ./dist",
-    "clean:installer": "shx rm -rf ./installers"
+    "clean:installer": "shx rm -rf ./installers",
+    "clean:publish": "shx rm -rf ./publish"
   },
   "repository": {
     "type": "git",
