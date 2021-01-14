@@ -31,10 +31,10 @@ module.exports = {
         target: "nsis",
         arch: "x64",
       },
-      // {
-      //   target: "msi",
-      //   arch: "x64",
-      // },
+      {
+        target: "msi",
+        arch: "x64",
+      },
     ],
     icon: "src/assets/icons/win/icon.ico",
   },
