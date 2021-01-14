@@ -67,7 +67,7 @@ jobs:
         if: steps.node_modules_cache.outputs.cache-hit != 'true'
       - name: Electron Builder
         run: npm run dist
-        env:
+        # env:
         #   CSC_LINK: ${{ secrets.WINDOWS_CERTS }}
         #   CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTS_PASSWORD }}
       - name: Upload Release Assets
