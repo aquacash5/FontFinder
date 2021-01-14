@@ -1,6 +1,7 @@
 const dotenv = require("dotenv");
 const pjson = require("./package.json");
 const isDevelopment = (process.env.NODE_ENV || "production") === "development";
+const isPreRelease = (process.env.PRE_RELEASE || "true") === "true";
 
 if (isDevelopment) {
   dotenv.config();
@@ -12,8 +13,8 @@ module.exports = {
   publish: [
     {
       provider: "github",
-      private: true,
-      releaseType: isDevelopment ? "prerelease" : "release",
+      private: false,
+      releaseType: isPreRelease ? "prerelease" : "release",
       publishAutoUpdate: false,
     },
   ],
