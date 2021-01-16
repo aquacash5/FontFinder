@@ -9,3 +9,11 @@
 .dropdown-menu {
   min-width: unset !important;
 }
+
+.ff-header {
+  height: 18rem;
+}
+
+.ff-title {
+  max-width: 33rem;
+}
