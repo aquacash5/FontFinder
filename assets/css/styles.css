@@ -1,0 +1,11 @@
+.project-icon {
+  height: 128px;
+}
+
+.icons {
+  height: 70px;
+}
+
+.dropdown-menu {
+  min-width: unset !important;
+}
