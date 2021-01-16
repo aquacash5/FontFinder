@@ -10,14 +10,13 @@
 
 1. Download or clone this repository
 2. Go to your copy of the repository
-3. Run `npm install`
+3. Run `npm ci`
 4. Run `npm start`
 
-The `src` directory has 4 folders:
+The `src` directory has 3 folders:
 
 | Folder    | Description                                                   |
 | --------- | ------------------------------------------------------------- |
 | assets    | Contains images used in the program and installer             |
-| installer | The render process for installing, updating, and uninstalling |
 | main      | The main process that controls the window                     |
 | renderer  | The web application that shows the fonts                      |
