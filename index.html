@@ -29,7 +29,7 @@
               class="project-icon"
             />
             <div class="media-body align-self-center">
-              <h3>FontFinder</h3>
+              <h3>FontFinder <small id="version"></small></h3>
               An application for viewing and searching your fonts.
               <a href="https://github.com/aquacash5/FontFinder"
                 >Check out the source on GitHub.</a
@@ -164,6 +164,7 @@
             "https://api.github.com/repos/aquacash5/FontFinder/releases/latest"
           );
           const latestResponse = await latestRequest.json();
+          $("#version").text(latestResponse.tag_name);
           for (const { browser_download_url: r_url } of latestResponse.assets) {
             if (/blockmap/.test(r_url)) {
               continue;
