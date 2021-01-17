@@ -61,7 +61,8 @@ async function systemFonts() {
       port: "receiveFonts",
       args: R.pipe(
         R.filter(R.compose(R.identity, R.prop("name"))),
-        R.filter(R.compose(R.not, R.startsWith("."), R.prop("name")))
+        R.filter(R.compose(R.not, R.startsWith("."), R.prop("name"))),
+        R.uniqBy(R.prop("name"))
       )(Array.from(ttfInfoList)),
     });
   } catch (err) {
