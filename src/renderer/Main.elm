@@ -37,8 +37,6 @@ type alias Model =
     , search : String
     , example : String
     , fontSize : Int
-    , bold : Bool
-    , italic : Bool
     , filterSelected : Bool
     , selected : Set.Set String
     }
@@ -78,8 +76,6 @@ init _ =
       , example = ""
       , search = ""
       , fontSize = defaultFontSize
-      , bold = False
-      , italic = False
       , filterSelected = False
       , selected = Set.empty
       }
@@ -98,7 +94,6 @@ type Msg
     | ChangeSearch String
     | ChangeFontSize String
     | ConfirmFontSize
-    | TogglePresenter Presenter
     | AddSelectedFont String
     | ResetSelectedFonts (List String)
     | RemoveSelectedFont String
@@ -153,14 +148,6 @@ update msg model =
 
             else
                 ( model, Cmd.none )
-
-        TogglePresenter presenter ->
-            case presenter of
-                Bold ->
-                    ( { model | bold = not model.bold }, Cmd.none )
-
-                Italic ->
-                    ( { model | italic = not model.italic }, Cmd.none )
 
         AddSelectedFont fontName ->
             let
@@ -313,11 +300,7 @@ renderFont model font =
                     [ class "mt-5"
                     ]
                     [ p
-                        [ classList
-                            [ ( "card-text", True )
-                            , ( "font-weight-bold", model.bold )
-                            , ( "font-italic", model.italic )
-                            ]
+                        [ class "card-text"
                         , style "font-family" ("\"" ++ font ++ "\"")
                         , style "font-size" (getFontStyle model.fontSize)
                         ]
@@ -333,21 +316,6 @@ renderFont model font =
                 ]
             ]
         ]
-
-
-presenterButton : String -> Bool -> Presenter -> String -> Html Msg
-presenterButton fontClass enabled presenter label =
-    button
-        [ classList
-            [ ( "btn", True )
-            , ( fontClass, True )
-            , ( "btn-secondary", enabled )
-            , ( "btn-outline-secondary", not enabled )
-            ]
-        , style "width" "40px"
-        , onClick (TogglePresenter presenter)
-        ]
-        [ text label ]
 
 
 navBar : Model -> Html Msg
@@ -370,10 +338,6 @@ navBar model =
                     , onInput ChangeExample
                     ]
                     [ text model.example ]
-                ]
-            , div [ class "btn-group" ]
-                [ presenterButton "font-weight-bold" model.bold Bold "B"
-                , presenterButton "font-italic" model.italic Italic "I"
                 ]
             , form
                 [ class "form-inline"
