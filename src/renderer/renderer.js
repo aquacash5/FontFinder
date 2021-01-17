@@ -5,7 +5,7 @@ import { ipcRenderer } from "electron";
 import * as R from "ramda";
 import "./styles/renderer.scss";
 
-// get a reference to the div where we will show our UI
+// Reference to the div where we will show our UI
 const container = document.createElement("div");
 document.body.appendChild(container);
 
@@ -13,24 +13,50 @@ document.body.appendChild(container);
 const fontFamiliesContainer = document.createElement("style");
 document.head.appendChild(fontFamiliesContainer);
 
-// start the elm app in the container
+// Start the elm app in the container
 // and keep a reference for communicating with the app
 const fontfinder = Elm.Main.init({ node: container });
+
+function formatType(path) {
+  if (/\.ttf$/i.test(path)) {
+    return "truetype";
+  } else if (/\.otf$/i.test(path)) {
+    return "opentype";
+  } else if (/\.woff$/i.test(path)) {
+    return "woff";
+  } else if (/\.woff2$/i.test(path)) {
+    return "woff2";
+  }
+}
 
 ipcRenderer.on("ELM-EVENT", (event, { port, args }) => {
   switch (port) {
     case "receiveFonts":
-      fontFamiliesContainer.append(
-        ...R.map(
-          ({ name, path }) =>
-            document.createTextNode(`
-              @font-face {
-                font-family: "${name}";
-                src: url("font-file://${path}");
-              }`),
-          args
-        )
-      );
+      let position = 0;
+      const idleCallback = (deadline) => {
+        const nodes = [];
+        let first = false;
+        while (
+          !first ||
+          (deadline.timeRemaining() > 3 && args.length > position)
+        ) {
+          first = true;
+          const { name, path } = args[position];
+          nodes.push(
+            document.createTextNode(
+              `@font-face {font-family: "${name}";src: url("font-file://${encodeURIComponent(
+                path
+              )}") format("${formatType(path)}"), local("${name}");}`
+            )
+          );
+          position += 1;
+        }
+        fontFamiliesContainer.append(...nodes);
+        if (args.length > position) {
+          window.requestIdleCallback(idleCallback, { timeout: 1000 });
+        }
+      };
+      window.requestIdleCallback(idleCallback, { timeout: 1000 });
       const families = R.map(R.prop("name"), args);
       fontfinder.ports["receiveFonts"].send(families);
       break;
