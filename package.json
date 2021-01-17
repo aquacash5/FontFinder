@@ -73,7 +73,6 @@
     "node-fetch": "^2.6.1",
     "path": "^0.12.7",
     "ramda": "^0.27.1",
-    "system-font-families": "^0.4.1",
-    "ttfinfo": "git+https://github.com/aquacash5/ttfinfo.git"
+    "system-font-families": "^0.4.1"
   }
 }
