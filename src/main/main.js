@@ -1,7 +1,6 @@
-import { app, BrowserWindow, Menu, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, dialog, protocol } from "electron";
 import WindowStateKeeper from "electron-window-state";
 import SystemFonts from "system-font-families";
-import ttfInfo from "ttfinfo";
 import path from "path";
 import os from "os";
 import { promises as fs } from "fs";
@@ -32,60 +31,18 @@ const Fonts = new SystemFonts({
     : [],
 });
 
-function getSystemInfo(e) {
-  if (__WINDOWS__) {
-    if (!R.isEmpty(e.microsoft)) {
-      return e.microsoft;
-    } else if (!R.isEmpty(e.unicode)) {
-      return e.unicode;
-    } else {
-      return e.macintosh;
-    }
-  } else if (__MACOS__) {
-    if (!R.isEmpty(e.macintosh)) {
-      return e.macintosh;
-    } else if (!R.isEmpty(e.unicode)) {
-      return e.unicode;
-    } else {
-      return e.microsoft;
-    }
-  } else {
-    if (!R.isEmpty(e.unicode)) {
-      return e.unicode;
-    } else if (!R.isEmpty(e.microsoft)) {
-      return e.microsoft;
-    } else {
-      return e.macintosh;
-    }
-  }
-}
-
-function getTtfInfo(pathOrData) {
-  return new Promise((resolve, reject) => {
-    ttfInfo.get(pathOrData, (err, data) => {
-      err ? reject(err) : resolve(data);
-    });
-  });
-}
-
-const getUniqueFonts = R.pipe(
-  R.map(R.prop("files")),
-  R.map(R.values),
-  R.flatten,
-  R.uniq
-);
-
 async function systemFonts() {
   try {
     const sysFonts = await Fonts.getFontsExtended();
-    const uniqueFontPaths = getUniqueFonts(sysFonts);
-    const ttfInfoList = new Set();
+    const ttfInfoList = [];
     let count = 0;
     let last = -Infinity;
-    for (const fontPath of uniqueFontPaths) {
+    for (const temp of sysFonts) {
+      const { files, postscriptNames, subFamilies } = temp;
+      console.log(temp);
       try {
         count += 1;
-        const percent = Math.floor((count * 100) / uniqueFontPaths.length);
+        const percent = Math.floor((count * 100) / sysFonts.length);
         if (last !== percent) {
           last = percent;
           mainEvent.reply("ELM-EVENT", {
@@ -93,16 +50,20 @@ async function systemFonts() {
             args: percent,
           });
         }
-        ttfInfoList.add(
-          getSystemInfo((await getTtfInfo(fontPath)).tables.name).family
-        );
+        for (const subFamily of subFamilies) {
+          ttfInfoList.push({
+            path: files[subFamily],
+            name: postscriptNames[subFamily],
+          });
+        }
       } catch {}
     }
     mainEvent.reply("ELM-EVENT", {
       port: "receiveFonts",
-      args: Array.from(ttfInfoList)
-        .filter(R.startsWith("."))
-        .filter(R.identity),
+      args: R.pipe(
+        R.filter(R.compose(R.identity, R.prop("name"))),
+        R.filter(R.compose(R.not, R.startsWith("."), R.prop("name")))
+      )(Array.from(ttfInfoList)),
     });
   } catch (err) {
     console.error(err);
@@ -226,6 +187,29 @@ function createWindow() {
         { role: "quit" },
       ],
     },
+    {
+      label: "Edit",
+      submenu: [
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+        ...(__MACOS__
+          ? [
+              { role: "pasteAndMatchStyle" },
+              { role: "delete" },
+              { role: "selectAll" },
+              { type: "separator" },
+              {
+                label: "Speech",
+                submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
+              },
+            ]
+          : [{ role: "delete" }, { type: "separator" }, { role: "selectAll" }]),
+      ],
+    },
   ]);
 
   Menu.setApplicationMenu(mainMenu);
@@ -246,7 +230,21 @@ function createWindow() {
 }
 
 function main() {
-  app.on("ready", createWindow); // called when electron has initialized
+  app.on("ready", async () => {
+    // Name the protocol whatever you want
+    const protocolName = "font-file";
+
+    protocol.registerFileProtocol(protocolName, (request, callback) => {
+      const url = request.url.replace(`${protocolName}://`, "");
+      try {
+        return callback(decodeURIComponent(url));
+      } catch (error) {
+        // Handle the error as needed
+        console.error(error);
+      }
+    });
+    createWindow();
+  }); // called when electron has initialized
 
   // when you close all the windows on a non-mac OS it quits the app
   app.on("window-all-closed", () => app.quit());
