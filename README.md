@@ -4,7 +4,7 @@
 
 ## Installation
 
-[Download Link](https://github.com/aquacash5/FontFinder/releases/latest)
+[Download Link](https://aquacash5.github.io/FontFinder/)
 
 ## Development
 
