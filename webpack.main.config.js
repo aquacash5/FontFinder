@@ -29,7 +29,11 @@ const config = () => {
           test: /\.(ico|icns|png)/,
           use: [
             {
-              loader: "file-loader",
+              loader: "url-loader",
+              options: {
+                limit: 10_000,
+                encoding: "base64",
+              },
             },
           ],
         },
