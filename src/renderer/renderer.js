@@ -44,9 +44,9 @@ ipcRenderer.on("ELM-EVENT", (event, { port, args }) => {
           const { name, path } = args[position];
           nodes.push(
             document.createTextNode(
-              `@font-face {font-family: "${name}";src: url("font-file://${encodeURIComponent(
+              `@font-face {font-family: "${name}";src: local("${name}"), url("font-file://${encodeURIComponent(
                 path
-              )}") format("${formatType(path)}"), local("${name}");}`
+              )}") format("${formatType(path)}");}`
             )
           );
           position += 1;
