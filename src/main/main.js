@@ -39,7 +39,6 @@ async function systemFonts() {
     let last = -Infinity;
     for (const temp of sysFonts) {
       const { files, postscriptNames, subFamilies } = temp;
-      console.log(temp);
       try {
         count += 1;
         const percent = Math.floor((count * 100) / sysFonts.length);
