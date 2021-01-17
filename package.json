@@ -61,7 +61,7 @@
     "sass-loader": "^10.1.0",
     "shx": "^0.3.2",
     "style-loader": "^1.2.1",
-    "url-loader": "^4.1.0",
+    "url-loader": "^4.1.1",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.2"
@@ -69,6 +69,7 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "cross-env": "^7.0.2",
+    "electron-about": "^2.0.1",
     "electron-window-state": "^5.0.3",
     "node-fetch": "^2.6.1",
     "path": "^0.12.7",

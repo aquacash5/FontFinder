@@ -5,6 +5,8 @@ import path from "path";
 import os from "os";
 import { promises as fs } from "fs";
 import * as R from "ramda";
+import About from "electron-about";
+import Icon64 from "../assets/icons/png/64x64.png";
 
 const DEFAULT_SAVE_NAME = "Untitled.ffs";
 
@@ -163,7 +165,29 @@ function createWindow() {
   mainWindowState.manage(mainWindow);
 
   const mainMenu = Menu.buildFromTemplate([
-    ...(__MACOS__ ? [{ role: "appMenu" }] : []),
+    ...(__MACOS__
+      ? [
+          {
+            label: "FontFinder",
+            submenu: [
+              About.makeMenuItem("FontFinder", {
+                icon: Icon64,
+                appName: "FontFinder",
+                version: "Version " + __VERSION__,
+                copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
+              }),
+              { type: "separator" },
+              { role: "services" },
+              { type: "separator" },
+              { role: "hide" },
+              { role: "hideothers" },
+              { role: "unhide" },
+              { type: "separator" },
+              { role: "quit" },
+            ],
+          },
+        ]
+      : []),
     {
       label: "File",
       submenu: [
@@ -210,6 +234,21 @@ function createWindow() {
           : [{ role: "delete" }, { type: "separator" }, { role: "selectAll" }]),
       ],
     },
+    ...(__MACOS__
+      ? []
+      : [
+          {
+            label: "Help",
+            submenu: [
+              About.makeMenuItem("FontFinder", {
+                icon: Icon64,
+                appName: "FontFinder",
+                version: "Version " + __VERSION__,
+                copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
+              }),
+            ],
+          },
+        ]),
   ]);
 
   Menu.setApplicationMenu(mainMenu);
