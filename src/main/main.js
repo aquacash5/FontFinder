@@ -12,7 +12,6 @@ const DEFAULT_SAVE_NAME = "Untitled.ffs";
 
 // saves a global reference to mainWindow so it doesn't get garbage collected
 let mainWindow;
-let mainEvent;
 
 let curretSelection = [];
 let unsavedModifications = false;
@@ -46,7 +45,7 @@ async function systemFonts() {
         const percent = Math.floor((count * 100) / sysFonts.length);
         if (last !== percent) {
           last = percent;
-          mainEvent.reply("ELM-EVENT", {
+          mainWindow.webContents.send("ELM-EVENT", {
             port: "receiveProgress",
             args: percent,
           });
@@ -59,7 +58,7 @@ async function systemFonts() {
         }
       } catch {}
     }
-    mainEvent.reply("ELM-EVENT", {
+    mainWindow.webContents.send("ELM-EVENT", {
       port: "receiveFonts",
       args: R.pipe(
         R.filter(R.compose(R.identity, R.prop("name"))),
@@ -69,7 +68,10 @@ async function systemFonts() {
     });
   } catch (err) {
     console.error(err);
-    mainEvent.reply("ELM-EVENT", { port: "receiveFonts", args: [] });
+    mainWindow.webContents.send("ELM-EVENT", {
+      port: "receiveFonts",
+      args: [],
+    });
   }
 }
 
@@ -98,7 +100,7 @@ async function openFile() {
     const selectedResults = await fs.readFile(savePath);
     curretSelection = JSON.parse(selectedResults.toString());
     unsavedModifications = false;
-    mainEvent.reply("ELM-EVENT", {
+    mainWindow.webContents.send("ELM-EVENT", {
       port: "receiveSelected",
       args: curretSelection,
     });
@@ -296,7 +298,6 @@ function main() {
   });
 
   ipcMain.on("main-page-start", (event) => {
-    mainEvent = event;
     systemFonts();
   });
 
