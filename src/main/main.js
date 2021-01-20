@@ -161,6 +161,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       nativeWindowOpen: __DEVELOPMENT__,
+      contextIsolation: false,
     },
   });
 
