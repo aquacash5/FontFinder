@@ -35,12 +35,7 @@ ipcRenderer.on("ELM-EVENT", (event, { port, args }) => {
       let position = 0;
       const idleCallback = (deadline) => {
         const nodes = [];
-        let first = false;
-        while (
-          !first ||
-          (deadline.timeRemaining() > 3 && args.length > position)
-        ) {
-          first = true;
+        while (deadline.timeRemaining() > 5 && args.length > position) {
           const { name, path } = args[position];
           nodes.push(
             document.createTextNode(
