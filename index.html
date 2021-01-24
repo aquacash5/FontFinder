@@ -100,7 +100,21 @@
                 class="icons mb-1"
               />
             </div>
-            <h6 class="mb-3">macOS</h6>
+            <h6 class="mb-3">
+              macOS
+              <a
+                href="macos.html"
+                data-toggle="tooltip"
+                data-placement="right"
+                title="macOS Installation Issues"
+              >
+                <img
+                  alt="help"
+                  src="./assets/images/question-circle-solid.svg"
+                  class="icon"
+                />
+              </a>
+            </h6>
             <a
               id="macos"
               href="https://github.com/aquacash5/FontFinder/releases/latest"
@@ -137,6 +151,16 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col">
+          <a href="credits.html">Credits</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <a href="prerelease.html">Pre-releases</a>
+        </div>
+      </div>
     </div>
 
     <!-- Optional JavaScript -->
@@ -158,6 +182,7 @@
     ></script>
 
     <script>
+      $(() => $('[data-toggle="tooltip"]').tooltip());
       $(() => {
         (async () => {
           const latestRequest = await fetch(

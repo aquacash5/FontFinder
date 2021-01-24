@@ -17,3 +17,13 @@
 .ff-title {
   max-width: 33rem;
 }
+
+.instuction-list li {
+  margin-top: 2rem;
+}
+
+.icon {
+  height: 15px;
+  width: 15px;
+  vertical-align: top;
+}
