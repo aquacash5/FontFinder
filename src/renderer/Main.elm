@@ -1,9 +1,10 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, form, h5, input, li, nav, p, span, text, ul)
-import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
+import Html exposing (Html, button, div, form, h5, input, p, span, text)
+import Html.Attributes exposing (attribute, class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onBlur, onClick, onInput)
+import InfiniteList
 import Set
 
 
@@ -31,7 +32,8 @@ defaultFontSize =
 
 
 type alias Model =
-    { fonts : FontList
+    { infiniteList : InfiniteList.Model
+    , fonts : FontList
     , search : String
     , example : String
     , fontSize : Int
@@ -39,6 +41,7 @@ type alias Model =
     , italic : Bool
     , filterSelected : Bool
     , selected : Set.Set String
+    , averageHeight : Int
     }
 
 
@@ -56,7 +59,8 @@ type Presenter
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { fonts = Loading
+    ( { infiniteList = InfiniteList.init
+      , fonts = Loading
       , example = ""
       , search = ""
       , fontSize = defaultFontSize
@@ -64,6 +68,7 @@ init _ =
       , italic = False
       , filterSelected = False
       , selected = Set.empty
+      , averageHeight = 144
       }
     , Cmd.none
     )
@@ -86,6 +91,8 @@ type Msg
     | RemoveSelectedFont String
     | SetFilterSelected Bool
     | ClearSelected
+    | SetAverageHeight Int
+    | InfiniteListMsg InfiniteList.Model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -168,6 +175,12 @@ update msg model =
         SetFilterSelected enabled ->
             ( { model | filterSelected = enabled }, Cmd.none )
 
+        SetAverageHeight height ->
+            ( { model | averageHeight = height }, Cmd.none )
+
+        InfiniteListMsg infiniteList ->
+            ( { model | infiniteList = infiniteList }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -179,11 +192,28 @@ subscriptions _ =
         [ receiveFonts AddFonts
         , receiveProgress UpdateProgress
         , receiveSelected ResetSelectedFonts
+        , recieveAverageHeight SetAverageHeight
         ]
 
 
 
 -- VIEW
+
+
+config : Model -> InfiniteList.Config String Msg
+config model =
+    InfiniteList.config
+        { itemView = itemView model
+        , itemHeight = InfiniteList.withConstantHeight model.averageHeight
+        , containerHeight = 500
+        }
+        |> InfiniteList.withOffset 300
+        |> InfiniteList.withClass "my-class"
+
+
+itemView : Model -> Int -> Int -> String -> Html Msg
+itemView model _ _ item =
+    renderFont model item
 
 
 filterFonts : Model -> Model
@@ -248,6 +278,7 @@ renderFont model font =
         [ class "col-lg-4"
         , class "col-md-6"
         , class "col-12"
+        , attribute "data-node-type" "font-node"
         ]
         [ div
             [ classList
@@ -413,13 +444,6 @@ isMember set comp =
     Set.member comp set
 
 
-pageItem : Msg -> String -> Html Msg
-pageItem msg linkText =
-    li [ class "page-item" ]
-        [ button [ class "page-link", onClick msg ] [ text linkText ]
-        ]
-
-
 view : Model -> Html Msg
 view model =
     div []
@@ -496,6 +520,9 @@ view model =
                         (List.map (renderFont model) fontList)
             ]
         ]
+
+
+port recieveAverageHeight : (Int -> msg) -> Sub msg
 
 
 port receiveFonts : (List String -> msg) -> Sub msg

@@ -17,6 +17,8 @@ document.head.appendChild(fontFamiliesContainer);
 // and keep a reference for communicating with the app
 const fontfinder = Elm.Main.init({ node: container });
 
+const average = R.lift(R.divide)(R.sum, R.length);
+
 function formatType(path) {
   if (/\.ttf$/i.test(path)) {
     return "truetype";
@@ -26,6 +28,21 @@ function formatType(path) {
     return "woff";
   } else if (/\.woff2$/i.test(path)) {
     return "woff2";
+  }
+}
+
+let lastAverage = 144;
+
+function calcAverageNodeSize() {
+  const nodes = document.querySelectorAll("[data-node-type]");
+  const nodeHeights = R.map(R.prop("offsetHeight"), nodes);
+  if (!R.isEmpty(nodeHeights)) {
+    const avgHeight = Math.ceil(average(nodeHeights));
+    console.log("Average Height:", avgHeight);
+    if (lastAverage !== avgHeight) {
+      fontfinder.ports.recieveAverageHeight.send(avgHeight);
+      lastAverage = avgHeight;
+    }
   }
 }
 
@@ -69,3 +86,4 @@ Object.entries(fontfinder.ports)
   });
 
 ipcRenderer.send("main-page-start");
+window.setInterval(calcAverageNodeSize, 5000);
