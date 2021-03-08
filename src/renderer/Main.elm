@@ -4,7 +4,6 @@ import Browser
 import Html exposing (Html, button, div, form, h5, input, p, span, text)
 import Html.Attributes exposing (attribute, class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onBlur, onClick, onInput)
-import InfiniteList
 import Set
 
 
@@ -32,8 +31,7 @@ defaultFontSize =
 
 
 type alias Model =
-    { infiniteList : InfiniteList.Model
-    , fonts : FontList
+    { fonts : FontList
     , search : String
     , example : String
     , fontSize : Int
@@ -59,8 +57,7 @@ type Presenter
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { infiniteList = InfiniteList.init
-      , fonts = Loading
+    ( { fonts = Loading
       , example = ""
       , search = ""
       , fontSize = defaultFontSize
@@ -92,7 +89,6 @@ type Msg
     | SetFilterSelected Bool
     | ClearSelected
     | SetAverageHeight Int
-    | InfiniteListMsg InfiniteList.Model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -178,9 +174,6 @@ update msg model =
         SetAverageHeight height ->
             ( { model | averageHeight = height }, Cmd.none )
 
-        InfiniteListMsg infiniteList ->
-            ( { model | infiniteList = infiniteList }, Cmd.none )
-
 
 
 -- SUBSCRIPTIONS
@@ -192,28 +185,11 @@ subscriptions _ =
         [ receiveFonts AddFonts
         , receiveProgress UpdateProgress
         , receiveSelected ResetSelectedFonts
-        , recieveAverageHeight SetAverageHeight
         ]
 
 
 
 -- VIEW
-
-
-config : Model -> InfiniteList.Config String Msg
-config model =
-    InfiniteList.config
-        { itemView = itemView model
-        , itemHeight = InfiniteList.withConstantHeight model.averageHeight
-        , containerHeight = 500
-        }
-        |> InfiniteList.withOffset 300
-        |> InfiniteList.withClass "my-class"
-
-
-itemView : Model -> Int -> Int -> String -> Html Msg
-itemView model _ _ item =
-    renderFont model item
 
 
 filterFonts : Model -> Model
@@ -278,6 +254,7 @@ renderFont model font =
         [ class "col-lg-4"
         , class "col-md-6"
         , class "col-12"
+        , class "font-node"
         , attribute "data-node-type" "font-node"
         ]
         [ div
@@ -319,7 +296,6 @@ renderFont model font =
                             , ( "font-italic", model.italic )
                             ]
                         , style "font-family" ("\"" ++ font ++ "\"")
-                        , style "font-size" (getFontStyle model.fontSize)
                         ]
                         [ text
                             (if String.isEmpty model.example then
@@ -465,7 +441,7 @@ view model =
                                 , class "alert-info"
                                 , class "m-5"
                                 ]
-                                [ text "Loading..."
+                                [ text "Loading Fonts..."
                                 , div [ class "progress" ]
                                     [ div
                                         [ class "progress-bar"
@@ -496,7 +472,7 @@ view model =
                                 , class "alert-info"
                                 , class "m-5"
                                 ]
-                                [ text "Loading..."
+                                [ text "Loading Fonts..."
                                 , div [ class "progress" ]
                                     [ div
                                         [ class "progress-bar"
@@ -516,13 +492,13 @@ view model =
                     div [] [ text "No Fonts were found." ]
 
                 Fonts fontList ->
-                    div [ class "row" ]
+                    div
+                        [ class "row"
+                        , style "font-size" (String.fromInt model.fontSize ++ "px")
+                        ]
                         (List.map (renderFont model) fontList)
             ]
         ]
-
-
-port recieveAverageHeight : (Int -> msg) -> Sub msg
 
 
 port receiveFonts : (List String -> msg) -> Sub msg
