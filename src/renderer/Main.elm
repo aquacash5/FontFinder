@@ -1,11 +1,9 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, form, h5, input, li, nav, p, span, text, ul)
-import Html.Attributes exposing (class, classList, placeholder, style, type_, value)
+import Html exposing (Html, button, div, form, h5, input, p, span, text)
+import Html.Attributes exposing (attribute, class, classList, placeholder, style, type_, value)
 import Html.Events exposing (onBlur, onClick, onInput)
-import Json.Encode as Encode exposing (..)
-import Paginate exposing (..)
 import Set
 
 
@@ -41,6 +39,7 @@ type alias Model =
     , italic : Bool
     , filterSelected : Bool
     , selected : Set.Set String
+    , averageHeight : Int
     }
 
 
@@ -48,23 +47,7 @@ type FontList
     = Loading
     | Percent Int
     | Empty
-    | Fonts (Paginate.PaginatedList String)
-
-
-whenFonts : (Paginate.PaginatedList String -> Paginate.PaginatedList String) -> FontList -> FontList
-whenFonts callback fontList =
-    case fontList of
-        Loading ->
-            Loading
-
-        Percent per ->
-            Percent per
-
-        Empty ->
-            Empty
-
-        Fonts fonts ->
-            Fonts (callback fonts)
+    | Fonts (List String)
 
 
 type Presenter
@@ -82,6 +65,7 @@ init _ =
       , italic = False
       , filterSelected = False
       , selected = Set.empty
+      , averageHeight = 144
       }
     , Cmd.none
     )
@@ -104,9 +88,7 @@ type Msg
     | RemoveSelectedFont String
     | SetFilterSelected Bool
     | ClearSelected
-    | NextPage
-    | PreviousPage
-    | GoToIndex Int
+    | SetAverageHeight Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -117,7 +99,7 @@ update msg model =
                 ( { model | fonts = Empty }, Cmd.none )
 
             else
-                ( { model | fonts = Fonts (Paginate.fromList 24 fontList) }, Cmd.none )
+                ( { model | fonts = Fonts fontList }, Cmd.none )
 
         UpdateProgress progress ->
             case model.fonts of
@@ -189,15 +171,8 @@ update msg model =
         SetFilterSelected enabled ->
             ( { model | filterSelected = enabled }, Cmd.none )
 
-        -- Pagination
-        NextPage ->
-            ( { model | fonts = whenFonts Paginate.next model.fonts }, Cmd.none )
-
-        PreviousPage ->
-            ( { model | fonts = whenFonts Paginate.prev model.fonts }, Cmd.none )
-
-        GoToIndex index ->
-            ( { model | fonts = whenFonts (Paginate.goTo index) model.fonts }, Cmd.none )
+        SetAverageHeight height ->
+            ( { model | averageHeight = height }, Cmd.none )
 
 
 
@@ -238,7 +213,7 @@ filterFonts model =
                     else
                         List.filter (caselessContains model.search)
             in
-            { model | fonts = Fonts (Paginate.map filter fonts) }
+            { model | fonts = Fonts (filter fonts) }
 
 
 caselessContains : String -> String -> Bool
@@ -279,6 +254,8 @@ renderFont model font =
         [ class "col-lg-4"
         , class "col-md-6"
         , class "col-12"
+        , class "font-node"
+        , attribute "data-node-type" "font-node"
         ]
         [ div
             [ classList
@@ -319,7 +296,6 @@ renderFont model font =
                             , ( "font-italic", model.italic )
                             ]
                         , style "font-family" ("\"" ++ font ++ "\"")
-                        , style "font-size" (getFontStyle model.fontSize)
                         ]
                         [ text
                             (if String.isEmpty model.example then
@@ -385,6 +361,7 @@ navBar model =
                     , class "mr-sm-2"
                     , style "width" "75px"
                     , type_ "number"
+                    , placeholder <| String.fromInt defaultFontSize
                     , value
                         (if model.fontSize == 0 then
                             ""
@@ -443,31 +420,6 @@ isMember set comp =
     Set.member comp set
 
 
-pageItem : Msg -> String -> Html Msg
-pageItem msg linkText =
-    li [ class "page-item" ]
-        [ button [ class "page-link", onClick msg ] [ text linkText ]
-        ]
-
-
-pagerOptions =
-    { innerWindow = 1
-    , outerWindow = 1
-    , pageNumberView = pageNumberItem
-    , gapView =
-        li [ class "page-item", class "disabled" ]
-            [ button [ class "page-link" ] [ text "..." ]
-            ]
-    }
-
-
-pageNumberItem : Int -> Bool -> Html Msg
-pageNumberItem index isActive =
-    li [ classList [ ( "page-item", True ), ( "active", isActive ) ] ]
-        [ button [ class "page-link", onClick (GoToIndex index) ] [ text (String.fromInt index) ]
-        ]
-
-
 view : Model -> Html Msg
 view model =
     div []
@@ -489,7 +441,7 @@ view model =
                                 , class "alert-info"
                                 , class "m-5"
                                 ]
-                                [ text "Loading..."
+                                [ text "Loading Fonts..."
                                 , div [ class "progress" ]
                                     [ div
                                         [ class "progress-bar"
@@ -520,7 +472,7 @@ view model =
                                 , class "alert-info"
                                 , class "m-5"
                                 ]
-                                [ text "Loading..."
+                                [ text "Loading Fonts..."
                                 , div [ class "progress" ]
                                     [ div
                                         [ class "progress-bar"
@@ -540,25 +492,11 @@ view model =
                     div [] [ text "No Fonts were found." ]
 
                 Fonts fontList ->
-                    div []
-                        [ div [ class "row" ]
-                            (List.map (renderFont model) <| Paginate.page fontList)
-                        , div [ class "row", class "my-5" ]
-                            [ div
-                                [ class "col"
-                                , class "d-flex"
-                                , class "justify-content-center"
-                                ]
-                                [ nav []
-                                    [ ul [ class "pagination" ]
-                                        (pageItem PreviousPage "Previous"
-                                            :: Paginate.elidedPager pagerOptions fontList
-                                            ++ [ pageItem NextPage "Next" ]
-                                        )
-                                    ]
-                                ]
-                            ]
+                    div
+                        [ class "row"
+                        , style "font-size" (String.fromInt model.fontSize ++ "px")
                         ]
+                        (List.map (renderFont model) fontList)
             ]
         ]
 

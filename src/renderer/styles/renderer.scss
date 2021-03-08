@@ -27,3 +27,8 @@ h5,
 .instant-time {
   transition-duration: 0s;
 }
+
+.font-node {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px calc(6.5rem + 1.5em);
+}
