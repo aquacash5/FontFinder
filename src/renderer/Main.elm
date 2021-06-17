@@ -228,15 +228,6 @@ caselessContains a b =
     String.contains lowerA lowerB
 
 
-getFontStyle : Int -> String
-getFontStyle size =
-    if size == 0 then
-        String.fromInt defaultFontSize ++ "px"
-
-    else
-        String.fromInt size ++ "px"
-
-
 renderFont : Model -> String -> Html Msg
 renderFont model font =
     let
