@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+    <title>FontFinder</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row justify-content-center mb-3 ff-header">
+        <div class="align-self-end ff-title">
+          <div class="media">
+            <img
+              src="./assets/images/fontfinder.png"
+              alt="FontFinder"
+              class="project-icon"
+            />
+            <div class="media-body align-self-center">
+              <h3>FontFinder <small id="version"></small></h3>
+              An application for viewing and searching your fonts.
+              <a href="https://github.com/aquacash5/FontFinder"
+                >Check out the source on GitHub.</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="stat-holder"></div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      $(() => {
+        (async () => {
+          const latestRequest = await fetch(
+            "https://api.github.com/repos/aquacash5/FontFinder/releases"
+          );
+          const response = await latestRequest.json();
+          const holder = $("#stat-holder");
+          const releases = document.createElement("div");
+          releases.classList.add("row");
+          for (const { name: releaseName, assets, prerelease } of response) {
+            const releaseItem = document.createElement("div");
+            releases.append(releaseItem);
+            releaseItem.classList.add("col-6");
+            const bgcolor = prerelease ? "bg-danger" : "bg-success";
+            const releaseElem = document.createElement("div");
+            releaseItem.append(releaseElem);
+            releaseElem.classList.add("card", "mt-4", bgcolor, "text-white");
+            releaseElem.innerHTML = `<div class="card-header">${releaseName}</div>`;
+            const rowElem = document.createElement("ul");
+            rowElem.classList.add("list-group", "list-group-flush");
+            for (const { name, download_count } of assets) {
+              const item = document.createElement("li");
+              item.classList.add("list-group-item", bgcolor, "text-white");
+              item.innerHTML = `${name} <span class="badge badge-secondary float-right">${download_count}</span>`;
+              rowElem.append(item);
+            }
+            releaseElem.append(rowElem);
+          }
+          $("#stat-holder").append(releases);
+        })();
+      });
+    </script>
+  </body>
+</html>
