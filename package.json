@@ -10,7 +10,7 @@
     "start:electron": "electron .",
     "build": "run-s -ln clean build:renderer build:main",
     "build:renderer": "webpack --config webpack.renderer.config.js",
-    "build:renderer:dev": "webpack serve --content-base ./build --config webpack.renderer.config.js",
+    "build:renderer:dev": "webpack serve --config webpack.renderer.config.js",
     "build:main": "webpack --config webpack.main.config.js",
     "build:main:run": "run-s build:main start:electron",
     "build:icons": "npx electron-icon-builder --input=src/assets/icon.png --output=src/assets",
@@ -65,7 +65,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.39.1",
     "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^4.0.0-beta.3"
   },
   "dependencies": {
     "bootstrap": "^4.6.0",

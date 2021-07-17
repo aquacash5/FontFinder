@@ -75,10 +75,10 @@ async function systemFonts() {
   }
 }
 
-function calcTitle() {
-  const modified = unsavedModifications ? "●" : "";
-  const saveFile = path.basename(savePath);
-  return `Font Finder | ${saveFile}${modified}`;
+function calcTitle(filePath, modified) {
+  const modifiedStr = modified ? "●" : "";
+  const saveFile = path.basename(filePath);
+  return `Font Finder | ${saveFile}${modifiedStr}`;
 }
 
 async function openFile() {
@@ -104,7 +104,7 @@ async function openFile() {
       port: "receiveSelected",
       args: curretSelection,
     });
-    mainWindow.setTitle(calcTitle());
+    mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   }
 }
 
@@ -114,7 +114,7 @@ async function saveFile() {
   } else {
     await fs.writeFile(savePath, JSON.stringify(curretSelection));
     unsavedModifications = false;
-    mainWindow.setTitle(calcTitle());
+    mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   }
 }
 
@@ -136,7 +136,7 @@ async function saveFileAs() {
     savePath = result.filePath;
     await fs.writeFile(savePath, JSON.stringify(curretSelection));
     unsavedModifications = false;
-    mainWindow.setTitle(calcTitle());
+    mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   }
 }
 
@@ -156,7 +156,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     fullscreenable: false,
-    title: calcTitle(),
+    title: calcTitle(savePath, unsavedModifications),
     devTools: __DEVELOPMENT__,
     webPreferences: {
       nodeIntegration: true,
@@ -310,7 +310,7 @@ function main() {
     } else {
       unsavedModifications = true;
     }
-    mainWindow.setTitle(calcTitle());
+    mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   });
 }
 

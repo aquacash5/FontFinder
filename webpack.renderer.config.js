@@ -53,7 +53,6 @@ const config = () => {
       }),
     ],
     devServer: {
-      contentBase: buildDirectory,
       compress: true,
       port: 9000,
     },
