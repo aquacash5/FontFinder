@@ -1,7 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
-const env = process.env.NODE_ENV || "production";
+const env = process.env.NODE_ENV ?? "production";
 const isProduction = env === "production";
 const buildDirectory = path.join(__dirname, "build");
 

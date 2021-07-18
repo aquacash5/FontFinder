@@ -1,17 +1,30 @@
-import { app, BrowserWindow, Menu, ipcMain, dialog, protocol } from "electron";
-import WindowStateKeeper from "electron-window-state";
-import SystemFonts from "system-font-families";
-import path from "path";
-import os from "os";
-import { promises as fs } from "fs";
-import * as R from "ramda";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  Menu,
+  protocol,
+  shell,
+} from "electron";
 import About from "electron-about";
+import WindowStateKeeper from "electron-window-state";
+import { promises as fs } from "fs";
+import os from "os";
+import path from "path";
+import * as R from "ramda";
+import SystemFonts from "system-font-families";
 import Icon64 from "../assets/icons/png/64x64.png";
+import axios from "axios";
+import { serializeError } from "serialize-error";
+import compareVersions from "compare-version";
+import marked from "marked";
 
 const DEFAULT_SAVE_NAME = "Untitled.ffs";
 
 // saves a global reference to mainWindow so it doesn't get garbage collected
 let mainWindow;
+let updateWindow;
 
 let curretSelection = [];
 let unsavedModifications = false;
@@ -31,6 +44,16 @@ const Fonts = new SystemFonts({
       ]
     : [],
 });
+
+function centerChildInParent(parent, child) {
+  const parentRect = parent.getBounds();
+  const childRect = child.getBounds();
+  const diffH = parentRect.height - childRect.height;
+  const diffW = parentRect.width - childRect.width;
+  const x = Math.floor(parentRect.x + diffH / 2);
+  const y = Math.floor(parentRect.y + diffW / 2);
+  child.setBounds({ x, y });
+}
 
 async function systemFonts() {
   try {
@@ -137,6 +160,104 @@ async function saveFileAs() {
     await fs.writeFile(savePath, JSON.stringify(curretSelection));
     unsavedModifications = false;
     mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
+  }
+}
+
+async function checkForUpdate() {
+  try {
+    const response = await axios.get(
+      "https://api.github.com/repos/aquacash5/FontFinder/releases",
+      {
+        params: {
+          per_page: 5,
+          page: 1,
+        },
+      }
+    );
+    const latest = R.pipe(
+      R.filter(R.pathEq(["prerelease"], __BETA__)),
+      R.head
+    )(response.data);
+    if (compareVersions(latest.tag_name, __VERSION__)) {
+      const html = `
+<html>
+  <head>
+    <title>Update Available!</title>
+    <style>
+      body { margin: 0px; }
+      .container {
+        height: 100vh;
+        width: 100vw;
+        margin: 0px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      h1, h2, h3, ul {
+        margin: 5px;
+      }
+      a:link, a:visited {
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 400;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      }
+      a:hover, a:active {
+        background-color: #138496;
+        border-color: #117a8b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      ${marked(latest.body)}
+      <a href="https://aquacash5.github.io/FontFinder${
+        __BETA__ ? "/prerelease" : ""
+      }">Download Now</a>
+    </div>
+  </body>
+</html>`;
+      updateWindow = new BrowserWindow({
+        parent: mainWindow,
+        modal: true,
+        width: 300,
+        height: 250,
+        show: false,
+        skipTaskbar: true,
+        resizable: false,
+      });
+      updateWindow.setMenu(null);
+      centerChildInParent(mainWindow, updateWindow);
+      updateWindow.loadURL(
+        "data:text/html;base64," + Buffer.from(html).toString("base64")
+      );
+      updateWindow.webContents.on("will-navigate", (event, url) => {
+        event.preventDefault();
+        shell.openExternal(url);
+      });
+      if (!__PACKAGED__) {
+        updateWindow.webContents.openDevTools({ mode: "detach" });
+      }
+      updateWindow.show();
+    }
+  } catch (err) {
+    console.error(serializeError(err));
   }
 }
 
@@ -253,7 +374,6 @@ function createWindow() {
           },
         ]),
   ]);
-
   Menu.setApplicationMenu(mainMenu);
 
   // display the index.html file
@@ -285,6 +405,7 @@ function main() {
         console.error(error);
       }
     });
+
     createWindow();
   }); // called when electron has initialized
 
@@ -312,6 +433,7 @@ function main() {
     }
     mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   });
+  checkForUpdate();
 }
 
 main();

@@ -8,9 +8,10 @@ const isWindows = /^win/.test(process.platform);
 const isMac = /^darwin$/.test(process.platform);
 const isLinux = /^linux$/.test(process.platform);
 
-const isPackaged = (process.env.BUILD_PACKAGE || "false") === "true";
+const isPackaged = (process.env.BUILD_PACKAGE ?? "false") === "true";
+const isBeta = (process.env.BETA_RELEASE ?? "false") === "true";
 
-const env = process.env.NODE_ENV || "production";
+const env = process.env.NODE_ENV ?? "production";
 const isProduction = env === "production";
 
 const config = () => {
@@ -48,6 +49,7 @@ const config = () => {
         __WINDOWS__: isWindows,
         __MACOS__: isMac,
         __LINUX__: isLinux,
+        __BETA__: isBeta,
       }),
     ],
     node: {
