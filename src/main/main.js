@@ -197,6 +197,31 @@ async function checkForUpdate() {
       h1, h2, h3, ul {
         margin: 5px;
       }
+      a:link, a:visited {
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 400;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      }
+      a:hover, a:active {
+        background-color: #138496;
+        border-color: #117a8b;
+      }
     </style>
   </head>
   <body>
@@ -211,8 +236,8 @@ async function checkForUpdate() {
       updateWindow = new BrowserWindow({
         parent: mainWindow,
         modal: true,
-        width: 500,
-        height: 400,
+        width: 300,
+        height: 250,
         show: false,
         skipTaskbar: true,
         resizable: false,
