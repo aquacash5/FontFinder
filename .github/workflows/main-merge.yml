@@ -32,3 +32,4 @@ jobs:
           commitish: main
           draft: false
           prerelease: true
+          body: Beta Release v${{ steps.package-version.outputs.current-version}}-pre

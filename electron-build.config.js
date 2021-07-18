@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 const pjson = require("./package.json");
-const isDevelopment = (process.env.NODE_ENV || "production") === "development";
+const isDevelopment = (process.env.NODE_ENV ?? "production") === "development";
 
 if (isDevelopment) {
   dotenv.config();

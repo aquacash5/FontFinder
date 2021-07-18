@@ -39,7 +39,6 @@ type alias Model =
     , italic : Bool
     , filterSelected : Bool
     , selected : Set.Set String
-    , averageHeight : Int
     }
 
 
@@ -65,7 +64,6 @@ init _ =
       , italic = False
       , filterSelected = False
       , selected = Set.empty
-      , averageHeight = 144
       }
     , Cmd.none
     )
@@ -88,7 +86,6 @@ type Msg
     | RemoveSelectedFont String
     | SetFilterSelected Bool
     | ClearSelected
-    | SetAverageHeight Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -170,9 +167,6 @@ update msg model =
 
         SetFilterSelected enabled ->
             ( { model | filterSelected = enabled }, Cmd.none )
-
-        SetAverageHeight height ->
-            ( { model | averageHeight = height }, Cmd.none )
 
 
 
