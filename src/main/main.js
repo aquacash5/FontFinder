@@ -178,7 +178,7 @@ async function checkForUpdate() {
       R.filter(R.pathEq(["prerelease"], __BETA__)),
       R.head
     )(response.data);
-    if (compareVersions(latest.tag_name, __VERSION__)) {
+    if (compareVersions(latest.tag_name, __VERSION__) > 0) {
       const html = `
 <html>
   <head>
