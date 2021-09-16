@@ -204,9 +204,6 @@ async function checkForUpdate() {
         color: white;
         text-align: center;
         vertical-align: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
         user-select: none;
         background-color: #17a2b8;
         border-color: #17a2b8;
@@ -280,9 +277,8 @@ function createWindow() {
     title: calcTitle(savePath, unsavedModifications),
     devTools: __DEVELOPMENT__,
     webPreferences: {
-      nodeIntegration: true,
+      preload: path.join(__dirname, "preload.js"),
       nativeWindowOpen: __DEVELOPMENT__,
-      contextIsolation: false,
     },
   });
 

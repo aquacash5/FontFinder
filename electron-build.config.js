@@ -44,6 +44,7 @@ module.exports = {
     perMachine: false,
     allowElevation: true,
     allowToChangeInstallationDirectory: true,
+    differentialPackage: false,
   },
   linux: {
     target: [
@@ -57,5 +58,8 @@ module.exports = {
       },
     ],
     icon: "src/assets/icons/png",
+  },
+  dmg: {
+    writeUpdateInfo: false,
   },
 };
