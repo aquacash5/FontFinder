@@ -8,7 +8,7 @@ const buildDirectory = path.join(__dirname, "build");
 module.exports = {
   mode: env,
   entry: "./src/renderer/renderer.js",
-  target: "web",
+  target: "browserslist:last 1 electron version",
   output: {
     path: buildDirectory,
     filename: "renderer.js",
