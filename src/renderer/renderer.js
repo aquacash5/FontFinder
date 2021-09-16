@@ -1,7 +1,4 @@
-"use strict";
-
 import { Elm } from "./Main.elm";
-import { ipcRenderer } from "electron";
 import * as R from "ramda";
 import "./styles/renderer.scss";
 
@@ -29,7 +26,7 @@ function formatType(path) {
   }
 }
 
-ipcRenderer.on("ELM-EVENT", (event, { port, args }) => {
+ipc.subscribeElm((_, { port, args }) => {
   switch (port) {
     case "receiveFonts":
       let position = 0;
@@ -68,8 +65,8 @@ Object.entries(fontfinder.ports)
   .filter(([_, v]) => v.hasOwnProperty("subscribe"))
   .forEach(([k, { subscribe }]) => {
     subscribe((args) => {
-      ipcRenderer.send(k, args);
+      ipc.send(k, args);
     });
   });
 
-ipcRenderer.send("main-page-start");
+ipc.send("main-page-start");

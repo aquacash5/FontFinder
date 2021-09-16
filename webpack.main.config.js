@@ -13,15 +13,15 @@ const isBeta = (process.env.BETA_RELEASE ?? "false") === "true";
 
 const env = process.env.NODE_ENV ?? "production";
 const isProduction = env === "production";
+const buildDirectory = path.join(__dirname, "build");
 
-const config = () => {
-  return {
+module.exports = [
+  {
     mode: env,
     entry: "./src/main/main.js",
     target: "electron-main",
-    devtool: isProduction ? undefined : "source-map",
     output: {
-      path: path.resolve(__dirname, "build"),
+      path: buildDirectory,
       filename: "main.js",
     },
     module: {
@@ -55,7 +55,14 @@ const config = () => {
     node: {
       __dirname: false,
     },
-  };
-};
-
-module.exports = config;
+  },
+  {
+    mode: env,
+    entry: "./src/main/preload.js",
+    target: "electron-preload",
+    output: {
+      path: buildDirectory,
+      filename: "preload.js",
+    },
+  },
+];
