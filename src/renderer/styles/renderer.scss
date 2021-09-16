@@ -28,7 +28,7 @@ h5,
   transition-duration: 0s;
 }
 
-.font-node {
+[data-font-node] {
   content-visibility: auto;
   contain-intrinsic-size: 1px calc(6.5rem + 1.5em);
 }
