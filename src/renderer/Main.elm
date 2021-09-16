@@ -239,6 +239,7 @@ renderFont model font =
         [ class "col-lg-4"
         , class "col-md-6"
         , class "col-12"
+        , class "font-node"
         , attribute "data-node-type" "font-node"
         ]
         [ div
