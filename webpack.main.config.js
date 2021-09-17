@@ -1,6 +1,9 @@
-const path = require("path");
-const webpack = require("webpack");
+const { StatsWriterPlugin } = require("webpack-stats-plugin");
 const fs = require("fs");
+const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
+const Visualizer = require("webpack-visualizer-plugin2");
+const webpack = require("webpack");
 
 const pkgJson = JSON.parse(fs.readFileSync("package.json"));
 
@@ -40,6 +43,19 @@ module.exports = [
         },
       ],
     },
+    optimization: {
+      minimize: isProduction,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              drop_console: isProduction,
+              passes: 3,
+            },
+          },
+        }),
+      ],
+    },
     plugins: [
       new webpack.DefinePlugin({
         __PODUCTION__: isProduction,
@@ -50,6 +66,14 @@ module.exports = [
         __MACOS__: isMac,
         __LINUX__: isLinux,
         __BETA__: isBeta,
+      }),
+      new StatsWriterPlugin({
+        filename: path.join("..", "stats", "log-main.json"),
+        fields: null,
+        stats: { chunkModules: true },
+      }),
+      new Visualizer({
+        filename: path.join("..", "stats", "statistics-main.html"),
       }),
     ],
     node: {
@@ -64,5 +88,15 @@ module.exports = [
       path: buildDirectory,
       filename: "preload.js",
     },
+    plugins: [
+      new StatsWriterPlugin({
+        filename: path.join("..", "stats", "log-preload.json"),
+        fields: null,
+        stats: { chunkModules: true },
+      }),
+      new Visualizer({
+        filename: path.join("..", "stats", "statistics-preload.html"),
+      }),
+    ],
   },
 ];

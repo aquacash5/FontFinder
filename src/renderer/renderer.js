@@ -1,5 +1,5 @@
-import { Elm } from "./Main.elm";
 import * as R from "ramda";
+import { Elm } from "./Main.elm";
 import "./styles/renderer.scss";
 
 // Reference to the div where we will show our UI

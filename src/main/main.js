@@ -1,3 +1,6 @@
+import axios from "axios";
+import compareVersions from "compare-version";
+import SystemFonts from "dnm-font-manager";
 import {
   app,
   BrowserWindow,
@@ -10,15 +13,11 @@ import {
 import About from "electron-about";
 import WindowStateKeeper from "electron-window-state";
 import { promises as fs } from "fs";
-import os from "os";
+import marked from "marked";
 import path from "path";
 import * as R from "ramda";
-import SystemFonts from "system-font-families";
-import Icon64 from "../assets/icons/png/64x64.png";
-import axios from "axios";
 import { serializeError } from "serialize-error";
-import compareVersions from "compare-version";
-import marked from "marked";
+import Icon64 from "../assets/icons/png/64x64.png";
 
 const DEFAULT_SAVE_NAME = "Untitled.ffs";
 
@@ -30,20 +29,7 @@ let curretSelection = [];
 let unsavedModifications = false;
 let savePath = DEFAULT_SAVE_NAME;
 
-const Fonts = new SystemFonts({
-  customDirs: __WINDOWS__
-    ? [
-        path.join(
-          os.homedir(),
-          "AppData",
-          "Local",
-          "Microsoft",
-          "Windows",
-          "Fonts"
-        ),
-      ]
-    : [],
-});
+const Fonts = new SystemFonts();
 
 function centerChildInParent(parent, child) {
   const parentRect = parent.getBounds();
@@ -167,12 +153,7 @@ async function checkForUpdate() {
   try {
     const response = await axios.get(
       "https://api.github.com/repos/aquacash5/FontFinder/releases",
-      {
-        params: {
-          per_page: 5,
-          page: 1,
-        },
-      }
+      { params: { per_page: 5, page: 1 } }
     );
     const latest = R.pipe(
       R.filter(R.pathEq(["prerelease"], __BETA__)),
@@ -212,12 +193,24 @@ async function checkForUpdate() {
         font-size: 1rem;
         line-height: 1.5;
         border-radius: 0.25rem;
+        margin: 5px;
 
         transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
       }
       a:hover, a:active {
         background-color: #138496;
         border-color: #117a8b;
+      }
+      button {
+        background: none!important;
+        border: none;
+        padding: 0!important;
+        /*optional*/
+        font-family: arial, sans-serif;
+        /*input has OS specific font-family*/
+        color: #069;
+        text-decoration: underline;
+        cursor: pointer;
       }
     </style>
   </head>
@@ -227,6 +220,7 @@ async function checkForUpdate() {
       <a href="https://aquacash5.github.io/FontFinder${
         __BETA__ ? "/prerelease" : ""
       }">Download Now</a>
+      <button onclick="self.close()">Ignore</button>
     </div>
   </body>
 </html>`;
@@ -284,18 +278,20 @@ function createWindow() {
 
   mainWindowState.manage(mainWindow);
 
+  const aboutMenuItem = About.makeMenuItem("FontFinder", {
+    icon: Icon64,
+    appName: "FontFinder",
+    version: `Version ${__VERSION__}${__BETA__ ? "-pre" : ""}`,
+    copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
+  });
+
   const mainMenu = Menu.buildFromTemplate([
     ...(__MACOS__
       ? [
           {
             label: "FontFinder",
             submenu: [
-              About.makeMenuItem("FontFinder", {
-                icon: Icon64,
-                appName: "FontFinder",
-                version: "Version " + __VERSION__,
-                copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
-              }),
+              aboutMenuItem,
               { type: "separator" },
               { role: "services" },
               { type: "separator" },
@@ -359,14 +355,7 @@ function createWindow() {
       : [
           {
             label: "Help",
-            submenu: [
-              About.makeMenuItem("FontFinder", {
-                icon: Icon64,
-                appName: "FontFinder",
-                version: "Version " + __VERSION__,
-                copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
-              }),
-            ],
+            submenu: [aboutMenuItem],
           },
         ]),
   ]);
