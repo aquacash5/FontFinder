@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
 
 const env = process.env.NODE_ENV ?? "production";
 const isProduction = env === "production";
@@ -30,6 +31,19 @@ module.exports = {
         test: /\.(s?[ca]ss)$/,
         use: ["style-loader", "css-loader", "sass-loader"],
       },
+    ],
+  },
+  optimization: {
+    minimize: isProduction,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: isProduction,
+            passes: 3,
+          },
+        },
+      }),
     ],
   },
   plugins: [

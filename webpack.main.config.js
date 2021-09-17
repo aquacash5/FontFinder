@@ -1,6 +1,7 @@
-const path = require("path");
-const webpack = require("webpack");
 const fs = require("fs");
+const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
+const webpack = require("webpack");
 
 const pkgJson = JSON.parse(fs.readFileSync("package.json"));
 
@@ -38,6 +39,19 @@ module.exports = [
             },
           ],
         },
+      ],
+    },
+    optimization: {
+      minimize: isProduction,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              drop_console: isProduction,
+              passes: 3,
+            },
+          },
+        }),
       ],
     },
     plugins: [
