@@ -67,7 +67,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "bootstrap": "^4.6.0",
+    "bootstrap-scss": "^4.6.0",
     "compare-version": "^0.1.2",
     "cross-env": "^7.0.2",
     "electron-about": "^2.0.1",
