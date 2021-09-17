@@ -33,15 +33,15 @@ let savePath = DEFAULT_SAVE_NAME;
 const Fonts = new SystemFonts({
   customDirs: __WINDOWS__
     ? [
-        path.join(
-          os.homedir(),
-          "AppData",
-          "Local",
-          "Microsoft",
-          "Windows",
-          "Fonts"
-        ),
-      ]
+      path.join(
+        os.homedir(),
+        "AppData",
+        "Local",
+        "Microsoft",
+        "Windows",
+        "Fonts"
+      ),
+    ]
     : [],
 });
 
@@ -79,7 +79,7 @@ async function systemFonts() {
             name: postscriptNames[subFamily],
           });
         }
-      } catch {}
+      } catch { }
     }
     mainWindow.webContents.send("ELM-EVENT", {
       port: "receiveFonts",
@@ -167,12 +167,7 @@ async function checkForUpdate() {
   try {
     const response = await axios.get(
       "https://api.github.com/repos/aquacash5/FontFinder/releases",
-      {
-        params: {
-          per_page: 5,
-          page: 1,
-        },
-      }
+      { params: { per_page: 5, page: 1, }, }
     );
     const latest = R.pipe(
       R.filter(R.pathEq(["prerelease"], __BETA__)),
@@ -212,6 +207,7 @@ async function checkForUpdate() {
         font-size: 1rem;
         line-height: 1.5;
         border-radius: 0.25rem;
+        margin: 5px;
 
         transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
       }
@@ -219,14 +215,25 @@ async function checkForUpdate() {
         background-color: #138496;
         border-color: #117a8b;
       }
+      button {
+        background: none!important;
+        border: none;
+        padding: 0!important;
+        /*optional*/
+        font-family: arial, sans-serif;
+        /*input has OS specific font-family*/
+        color: #069;
+        text-decoration: underline;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       ${marked(latest.body)}
-      <a href="https://aquacash5.github.io/FontFinder${
-        __BETA__ ? "/prerelease" : ""
-      }">Download Now</a>
+      <a href="https://aquacash5.github.io/FontFinder${__BETA__ ? "/prerelease" : ""
+        }">Download Now</a>
+      <button onclick="self.close()">Ignore</button>
     </div>
   </body>
 </html>`;
@@ -284,29 +291,31 @@ function createWindow() {
 
   mainWindowState.manage(mainWindow);
 
+  const aboutMenuItem = About.makeMenuItem("FontFinder", {
+    icon: Icon64,
+    appName: "FontFinder",
+    version: `Version ${__VERSION__}${__BETA__ ? '-pre' : ''}`,
+    copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
+  })
+
   const mainMenu = Menu.buildFromTemplate([
     ...(__MACOS__
       ? [
-          {
-            label: "FontFinder",
-            submenu: [
-              About.makeMenuItem("FontFinder", {
-                icon: Icon64,
-                appName: "FontFinder",
-                version: "Version " + __VERSION__,
-                copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
-              }),
-              { type: "separator" },
-              { role: "services" },
-              { type: "separator" },
-              { role: "hide" },
-              { role: "hideothers" },
-              { role: "unhide" },
-              { type: "separator" },
-              { role: "quit" },
-            ],
-          },
-        ]
+        {
+          label: "FontFinder",
+          submenu: [
+            aboutMenuItem,
+            { type: "separator" },
+            { role: "services" },
+            { type: "separator" },
+            { role: "hide" },
+            { role: "hideothers" },
+            { role: "unhide" },
+            { type: "separator" },
+            { role: "quit" },
+          ],
+        },
+      ]
       : []),
     {
       label: "File",
@@ -342,33 +351,26 @@ function createWindow() {
         { role: "paste" },
         ...(__MACOS__
           ? [
-              { role: "pasteAndMatchStyle" },
-              { role: "delete" },
-              { role: "selectAll" },
-              { type: "separator" },
-              {
-                label: "Speech",
-                submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
-              },
-            ]
+            { role: "pasteAndMatchStyle" },
+            { role: "delete" },
+            { role: "selectAll" },
+            { type: "separator" },
+            {
+              label: "Speech",
+              submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
+            },
+          ]
           : [{ role: "delete" }, { type: "separator" }, { role: "selectAll" }]),
       ],
     },
     ...(__MACOS__
       ? []
       : [
-          {
-            label: "Help",
-            submenu: [
-              About.makeMenuItem("FontFinder", {
-                icon: Icon64,
-                appName: "FontFinder",
-                version: "Version " + __VERSION__,
-                copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
-              }),
-            ],
-          },
-        ]),
+        {
+          label: "Help",
+          submenu: [aboutMenuItem],
+        },
+      ]),
   ]);
   Menu.setApplicationMenu(mainMenu);
 
