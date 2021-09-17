@@ -1,3 +1,6 @@
+import axios from "axios";
+import compareVersions from "compare-version";
+import SystemFonts from "dnm-font-manager";
 import {
   app,
   BrowserWindow,
@@ -10,15 +13,11 @@ import {
 import About from "electron-about";
 import WindowStateKeeper from "electron-window-state";
 import { promises as fs } from "fs";
-import os from "os";
+import marked from "marked";
 import path from "path";
 import * as R from "ramda";
-import SystemFonts from "system-font-families";
-import Icon64 from "../assets/icons/png/64x64.png";
-import axios from "axios";
 import { serializeError } from "serialize-error";
-import compareVersions from "compare-version";
-import marked from "marked";
+import Icon64 from "../assets/icons/png/64x64.png";
 
 const DEFAULT_SAVE_NAME = "Untitled.ffs";
 
@@ -30,20 +29,7 @@ let curretSelection = [];
 let unsavedModifications = false;
 let savePath = DEFAULT_SAVE_NAME;
 
-const Fonts = new SystemFonts({
-  customDirs: __WINDOWS__
-    ? [
-      path.join(
-        os.homedir(),
-        "AppData",
-        "Local",
-        "Microsoft",
-        "Windows",
-        "Fonts"
-      ),
-    ]
-    : [],
-});
+const Fonts = new SystemFonts();
 
 function centerChildInParent(parent, child) {
   const parentRect = parent.getBounds();
@@ -79,7 +65,7 @@ async function systemFonts() {
             name: postscriptNames[subFamily],
           });
         }
-      } catch { }
+      } catch {}
     }
     mainWindow.webContents.send("ELM-EVENT", {
       port: "receiveFonts",
@@ -167,7 +153,7 @@ async function checkForUpdate() {
   try {
     const response = await axios.get(
       "https://api.github.com/repos/aquacash5/FontFinder/releases",
-      { params: { per_page: 5, page: 1, }, }
+      { params: { per_page: 5, page: 1 } }
     );
     const latest = R.pipe(
       R.filter(R.pathEq(["prerelease"], __BETA__)),
@@ -231,8 +217,9 @@ async function checkForUpdate() {
   <body>
     <div class="container">
       ${marked(latest.body)}
-      <a href="https://aquacash5.github.io/FontFinder${__BETA__ ? "/prerelease" : ""
-        }">Download Now</a>
+      <a href="https://aquacash5.github.io/FontFinder${
+        __BETA__ ? "/prerelease" : ""
+      }">Download Now</a>
       <button onclick="self.close()">Ignore</button>
     </div>
   </body>
@@ -294,28 +281,28 @@ function createWindow() {
   const aboutMenuItem = About.makeMenuItem("FontFinder", {
     icon: Icon64,
     appName: "FontFinder",
-    version: `Version ${__VERSION__}${__BETA__ ? '-pre' : ''}`,
+    version: `Version ${__VERSION__}${__BETA__ ? "-pre" : ""}`,
     copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
-  })
+  });
 
   const mainMenu = Menu.buildFromTemplate([
     ...(__MACOS__
       ? [
-        {
-          label: "FontFinder",
-          submenu: [
-            aboutMenuItem,
-            { type: "separator" },
-            { role: "services" },
-            { type: "separator" },
-            { role: "hide" },
-            { role: "hideothers" },
-            { role: "unhide" },
-            { type: "separator" },
-            { role: "quit" },
-          ],
-        },
-      ]
+          {
+            label: "FontFinder",
+            submenu: [
+              aboutMenuItem,
+              { type: "separator" },
+              { role: "services" },
+              { type: "separator" },
+              { role: "hide" },
+              { role: "hideothers" },
+              { role: "unhide" },
+              { type: "separator" },
+              { role: "quit" },
+            ],
+          },
+        ]
       : []),
     {
       label: "File",
@@ -351,26 +338,26 @@ function createWindow() {
         { role: "paste" },
         ...(__MACOS__
           ? [
-            { role: "pasteAndMatchStyle" },
-            { role: "delete" },
-            { role: "selectAll" },
-            { type: "separator" },
-            {
-              label: "Speech",
-              submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
-            },
-          ]
+              { role: "pasteAndMatchStyle" },
+              { role: "delete" },
+              { role: "selectAll" },
+              { type: "separator" },
+              {
+                label: "Speech",
+                submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
+              },
+            ]
           : [{ role: "delete" }, { type: "separator" }, { role: "selectAll" }]),
       ],
     },
     ...(__MACOS__
       ? []
       : [
-        {
-          label: "Help",
-          submenu: [aboutMenuItem],
-        },
-      ]),
+          {
+            label: "Help",
+            submenu: [aboutMenuItem],
+          },
+        ]),
   ]);
   Menu.setApplicationMenu(mainMenu);
 

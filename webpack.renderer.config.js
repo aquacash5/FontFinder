@@ -1,6 +1,8 @@
+const { StatsWriterPlugin } = require("webpack-stats-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
+const Visualizer = require("webpack-visualizer-plugin2");
 
 const env = process.env.NODE_ENV ?? "production";
 const isProduction = env === "production";
@@ -50,6 +52,14 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "renderer.html",
       title: null,
+    }),
+    new StatsWriterPlugin({
+      filename: path.join("..", "stats", "log-renderer.json"),
+      fields: null,
+      stats: { chunkModules: true },
+    }),
+    new Visualizer({
+      filename: path.join("..", "stats", "statistics-renderer.html"),
     }),
   ],
   devServer: {
