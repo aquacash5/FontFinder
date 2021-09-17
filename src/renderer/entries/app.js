@@ -1,6 +1,6 @@
 import * as R from "ramda";
-import { Elm } from "./Main.elm";
-import "./styles/renderer.scss";
+import { Elm } from "../Main.elm";
+import "../styles/renderer.scss";
 
 // Reference to the div where we will show our UI
 const container = document.createElement("div");

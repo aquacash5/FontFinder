@@ -10,20 +10,19 @@ import {
   protocol,
   shell,
 } from "electron";
-import About from "electron-about";
 import WindowStateKeeper from "electron-window-state";
 import { promises as fs } from "fs";
 import marked from "marked";
 import path from "path";
 import * as R from "ramda";
 import { serializeError } from "serialize-error";
-import Icon64 from "../assets/icons/png/64x64.png";
 
 const DEFAULT_SAVE_NAME = "Untitled.ffs";
 
 // saves a global reference to mainWindow so it doesn't get garbage collected
 let mainWindow;
 let updateWindow;
+let aboutWindow;
 
 let curretSelection = [];
 let unsavedModifications = false;
@@ -246,6 +245,7 @@ async function checkForUpdate() {
         updateWindow.webContents.openDevTools({ mode: "detach" });
       }
       updateWindow.show();
+      updateWindow.on("closed", () => (updateWindow = null));
     }
   } catch (err) {
     console.error(serializeError(err));
@@ -278,12 +278,29 @@ function createWindow() {
 
   mainWindowState.manage(mainWindow);
 
-  const aboutMenuItem = About.makeMenuItem("FontFinder", {
-    icon: Icon64,
-    appName: "FontFinder",
-    version: `Version ${__VERSION__}${__BETA__ ? "-pre" : ""}`,
-    copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
-  });
+  const aboutMenuItem = {
+    label: "About FontFinder",
+    click: () => {
+      aboutWindow = new BrowserWindow({
+        parent: mainWindow,
+        height: 300,
+        width: 400,
+        skipTaskbar: true,
+        resizable: false,
+      });
+      aboutWindow.setMenu(null);
+      centerChildInParent(mainWindow, aboutWindow);
+      if (__PACKAGED__) {
+        aboutWindow.loadURL(`file://${__dirname}/about.html`);
+      } else {
+        aboutWindow.loadURL("http://localhost:9000/about.html");
+        // open dev tools by default so we can see any console errors
+        aboutWindow.webContents.openDevTools({ mode: "detach" });
+      }
+      aboutWindow.show();
+      aboutWindow.on("closed", () => (aboutWindow = null));
+    },
+  };
 
   const mainMenu = Menu.buildFromTemplate([
     ...(__MACOS__
@@ -364,9 +381,9 @@ function createWindow() {
   // display the index.html file
   // mainWindow.loadFile("index.html");
   if (__PACKAGED__) {
-    mainWindow.loadURL(`file://${__dirname}/renderer.html`);
+    mainWindow.loadURL(`file://${__dirname}/app.html`);
   } else {
-    mainWindow.loadURL("http://localhost:9000/renderer.html");
+    mainWindow.loadURL("http://localhost:9000/app.html");
     // open dev tools by default so we can see any console errors
     mainWindow.webContents.openDevTools({ mode: "detach" });
   }

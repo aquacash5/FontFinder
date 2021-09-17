@@ -1,5 +1,8 @@
 @import "~bootstrap-scss/bootstrap";
 
+$primary: #f7931e;
+$secondary: #29abe2;
+
 h5,
 .h5 {
   font-size: 1.4rem;
@@ -31,4 +34,18 @@ h5,
 .font-node {
   content-visibility: auto;
   contain-intrinsic-size: 1px calc(6.5rem + 1.5em);
+}
+
+.background {
+  background-color: $primary;
+}
+
+.fill-window {
+  height: 100vh;
+  width: 100vw;
+}
+
+.link-white {
+  color: white;
+  text-decoration: underline;
 }
