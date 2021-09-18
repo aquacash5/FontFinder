@@ -48,6 +48,7 @@
   },
   "homepage": "https://github.com/aquacash5/FontFinder#readme",
   "devDependencies": {
+    "csp-html-webpack-plugin": "^5.1.0",
     "css-loader": "^6.2.0",
     "dotenv": "^10.0.0",
     "electron": "^14.0.1",

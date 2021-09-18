@@ -1,4 +1,5 @@
 const { StatsWriterPlugin } = require("webpack-stats-plugin");
+const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
 const fs = require("fs");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
@@ -93,7 +94,31 @@ module.exports = {
           filename: `${entry}.html`,
           title: null,
           chunks: [entry],
+          meta: {
+            "Content-Security-Policy": {
+              "http-equiv": "Content-Security-Policy",
+              content: "default-src 'self'",
+            },
+          },
         })
+    ),
+    new CspHtmlWebpackPlugin(
+      {
+        "script-src": "",
+        "style-src": "'unsafe-inline'",
+      },
+      {
+        enabled: true,
+        hashingMethod: "sha256",
+        hashEnabled: {
+          "script-src": true,
+          "style-src": true,
+        },
+        nonceEnabled: {
+          "script-src": true,
+          "style-src": true,
+        },
+      }
     ),
   ],
   devServer: {
