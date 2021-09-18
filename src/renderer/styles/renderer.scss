@@ -23,10 +23,6 @@ h5,
   outline: 0px !important;
 }
 
-.card {
-  border-radius: 1rem;
-}
-
 .instant-time {
   transition-duration: 0s;
 }
@@ -34,6 +30,12 @@ h5,
 .font-node {
   content-visibility: auto;
   contain-intrinsic-size: 1px calc(6.5rem + 1.5em);
+  user-select: none;
+
+  .card {
+    border-radius: 1rem;
+    cursor: pointer;
+  }
 }
 
 .background {
