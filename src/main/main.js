@@ -10,20 +10,19 @@ import {
   protocol,
   shell,
 } from "electron";
-import About from "electron-about";
 import WindowStateKeeper from "electron-window-state";
 import { promises as fs } from "fs";
 import marked from "marked";
 import path from "path";
 import * as R from "ramda";
 import { serializeError } from "serialize-error";
-import Icon64 from "../assets/icons/png/64x64.png";
 
 const DEFAULT_SAVE_NAME = "Untitled.ffs";
 
 // saves a global reference to mainWindow so it doesn't get garbage collected
 let mainWindow;
 let updateWindow;
+let aboutWindow;
 
 let curretSelection = [];
 let unsavedModifications = false;
@@ -31,14 +30,11 @@ let savePath = DEFAULT_SAVE_NAME;
 
 const Fonts = new SystemFonts();
 
-function centerChildInParent(parent, child) {
-  const parentRect = parent.getBounds();
-  const childRect = child.getBounds();
-  const diffH = parentRect.height - childRect.height;
-  const diffW = parentRect.width - childRect.width;
-  const x = Math.floor(parentRect.x + diffH / 2);
-  const y = Math.floor(parentRect.y + diffW / 2);
-  child.setBounds({ x, y });
+function centerChildInParent(parent, width, height) {
+  const bounds = parent.getBounds();
+  const x = Math.floor(bounds.x + (bounds.width - width) / 2);
+  const y = Math.floor(bounds.y + (bounds.height - height) / 2);
+  return { x, y, width, height, parent };
 }
 
 async function systemFonts() {
@@ -178,7 +174,7 @@ async function checkForUpdate() {
       h1, h2, h3, ul {
         margin: 5px;
       }
-      a:link, a:visited {
+      a:link.download, a:visited.download {
         text-decoration: none;
         display: inline-block;
         font-weight: 400;
@@ -197,7 +193,7 @@ async function checkForUpdate() {
 
         transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
       }
-      a:hover, a:active {
+      a:hover.download, a:active.download {
         background-color: #138496;
         border-color: #117a8b;
       }
@@ -219,33 +215,32 @@ async function checkForUpdate() {
       ${marked(latest.body)}
       <a href="https://aquacash5.github.io/FontFinder${
         __BETA__ ? "/prerelease" : ""
-      }">Download Now</a>
+      }" class="download">Download Now</a>
       <button onclick="self.close()">Ignore</button>
     </div>
   </body>
 </html>`;
       updateWindow = new BrowserWindow({
-        parent: mainWindow,
+        ...centerChildInParent(mainWindow, 300, 250),
         modal: true,
-        width: 300,
-        height: 250,
         show: false,
         skipTaskbar: true,
         resizable: false,
+        frame: false,
       });
       updateWindow.setMenu(null);
-      centerChildInParent(mainWindow, updateWindow);
       updateWindow.loadURL(
         "data:text/html;base64," + Buffer.from(html).toString("base64")
       );
+      if (!__PACKAGED__) {
+        updateWindow.webContents.openDevTools({ mode: "detach" });
+      }
       updateWindow.webContents.on("will-navigate", (event, url) => {
         event.preventDefault();
         shell.openExternal(url);
       });
-      if (!__PACKAGED__) {
-        updateWindow.webContents.openDevTools({ mode: "detach" });
-      }
-      updateWindow.show();
+      updateWindow.on("closed", () => (updateWindow = null));
+      updateWindow.on("ready-to-show", () => updateWindow.show());
     }
   } catch (err) {
     console.error(serializeError(err));
@@ -253,7 +248,7 @@ async function checkForUpdate() {
 }
 
 // This will create our app window, no surprise there
-function createWindow() {
+function startApplication() {
   let mainWindowState = WindowStateKeeper({
     defaultWidth: 1024,
     defaultHeight: 700,
@@ -265,6 +260,7 @@ function createWindow() {
     y: mainWindowState.y,
     width: mainWindowState.width,
     height: mainWindowState.height,
+    show: false,
     minWidth: 900,
     minHeight: 600,
     fullscreenable: false,
@@ -278,12 +274,35 @@ function createWindow() {
 
   mainWindowState.manage(mainWindow);
 
-  const aboutMenuItem = About.makeMenuItem("FontFinder", {
-    icon: Icon64,
-    appName: "FontFinder",
-    version: `Version ${__VERSION__}${__BETA__ ? "-pre" : ""}`,
-    copyright: "© 2020-2021 Kyle Bloom All Rights Reserved",
-  });
+  const aboutMenuItem = {
+    label: "About FontFinder",
+    click: () => {
+      if (!aboutWindow) {
+        aboutWindow = new BrowserWindow({
+          ...centerChildInParent(mainWindow, 400, 310),
+          skipTaskbar: true,
+          resizable: false,
+          useContentSize: true,
+        });
+        aboutWindow.setMenu(null);
+        if (__PACKAGED__) {
+          aboutWindow.loadURL(`file://${__dirname}/about.html`);
+        } else {
+          aboutWindow.loadURL("http://localhost:9000/about.html");
+          // open dev tools by default so we can see any console errors
+          aboutWindow.webContents.openDevTools({ mode: "detach" });
+        }
+        aboutWindow.webContents.on("will-navigate", (event, url) => {
+          event.preventDefault();
+          shell.openExternal(url);
+        });
+        aboutWindow.on("closed", () => (aboutWindow = null));
+        aboutWindow.on("ready-to-show", () => aboutWindow.show());
+      } else {
+        aboutWindow.focus();
+      }
+    },
+  };
 
   const mainMenu = Menu.buildFromTemplate([
     ...(__MACOS__
@@ -364,16 +383,14 @@ function createWindow() {
   // display the index.html file
   // mainWindow.loadFile("index.html");
   if (__PACKAGED__) {
-    mainWindow.loadURL(`file://${__dirname}/renderer.html`);
+    mainWindow.loadURL(`file://${__dirname}/app.html`);
   } else {
-    mainWindow.loadURL("http://localhost:9000/renderer.html");
+    mainWindow.loadURL("http://localhost:9000/app.html");
     // open dev tools by default so we can see any console errors
     mainWindow.webContents.openDevTools({ mode: "detach" });
   }
-
-  mainWindow.on("closed", function () {
-    mainWindow = null;
-  });
+  mainWindow.on("ready-to-show", () => mainWindow.show());
+  mainWindow.on("closed", () => (mainWindow = null));
 }
 
 function main() {
@@ -391,7 +408,7 @@ function main() {
       }
     });
 
-    createWindow();
+    startApplication();
   }); // called when electron has initialized
 
   // when you close all the windows on a non-mac OS it quits the app
@@ -400,15 +417,16 @@ function main() {
   // if there is no mainWindow it creates one
   app.on("activate", () => {
     if (mainWindow === null) {
-      createWindow();
+      startApplication();
     }
   });
 
-  ipcMain.on("main-page-start", (event) => {
+  ipcMain.on("main-page-start", () => {
     systemFonts();
+    checkForUpdate();
   });
 
-  ipcMain.on("saveSelected", (event, args) => {
+  ipcMain.on("saveSelected", (_, args) => {
     curretSelection = args;
     if (R.isEmpty(curretSelection)) {
       unsavedModifications = false;
@@ -418,7 +436,6 @@ function main() {
     }
     mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   });
-  checkForUpdate();
 }
 
 main();

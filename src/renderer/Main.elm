@@ -249,6 +249,7 @@ renderFont model font =
                 , ( "text-white", fontSelected )
                 , ( "bg-info", fontSelected )
                 ]
+            , onClick toggleChecked
             ]
             [ div
                 [ class "card-body"
@@ -261,15 +262,6 @@ renderFont model font =
                         , class "float-left"
                         ]
                         [ text font ]
-                    , button
-                        [ class "close"
-                        , class "float-right"
-                        , class "pl-3"
-                        , class "pt-0"
-                        , class "stretched-link"
-                        , onClick toggleChecked
-                        ]
-                        [ span [ class "card-title" ] [ text "✓" ] ]
                     ]
                 , div
                     [ class "mt-5"
