@@ -1,29 +1,117 @@
-.project-icon {
-  height: 128px;
+body {
+  background-color: #f7931e;
+  color: white;
+  min-height: 100vh;
+  margin: 0px;
+  padding: 0px;
 }
 
-.icons {
-  height: 70px;
+img.by-height {
+  height: 100%;
+  width: auto;
 }
 
-.dropdown-menu {
-  min-width: unset !important;
+img.by-width {
+  height: auto;
+  width: 100%;
 }
 
-.ff-header {
-  height: 18rem;
+h1 small {
+  font-size: 0.7em;
+  font-weight: lighter;
 }
 
-.ff-title {
-  max-width: 33rem;
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.instuction-list li {
-  margin-top: 2rem;
+header a img {
+  height: 4em;
+  width: auto;
+  padding: 1em;
 }
 
-.icon {
-  height: 15px;
-  width: 15px;
-  vertical-align: top;
+header ul {
+  display: flex;
+  list-style-type: none;
+}
+
+header ul li {
+  padding: 10px 20px;
+}
+
+header ul li a {
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.container {
+  width: 500px;
+}
+
+.container-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.holder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  max-width: 1500px;
+  height: 100%;
+}
+
+.holder > * {
+  padding: 50px;
+  max-width: 700px;
+  min-width: 400px;
+}
+
+.download-list {
+  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.download-list li {
+  padding: 20px;
+}
+
+.download-list a {
+  background-color: red;
+  border-radius: 5px;
+  display: block;
+  width: 120px;
+  color: white;
+  padding: 1em 1.5em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.download-list a:hover {
+  filter: brightness(80%);
+}
+
+.download-list .windows {
+  background-color: #448ccb !important;
+}
+
+.download-list .macos {
+  background-color: #2a3333 !important;
+}
+
+.download-list .linux {
+  background-color: #5c4261 !important;
 }

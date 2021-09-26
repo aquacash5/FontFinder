@@ -8,7 +8,7 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <link rel="stylesheet" href="./assets/css/styles.css" />
-    <title>FontFinder - Beta</title>
+    <title>FontFinder - Downloads</title>
   </head>
   <body>
     <header>
@@ -70,20 +70,12 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      $(() => $('[data-toggle="tooltip"]').tooltip());
       $(() => {
         (async () => {
           const allReleasesRequest = await fetch(
-            "https://api.github.com/repos/aquacash5/FontFinder/releases"
+            "https://api.github.com/repos/aquacash5/FontFinder/releases/latest"
           );
-          const allReleasesResponse = await allReleasesRequest.json();
-          const latestRelease = allReleasesResponse
-            .sort(
-              (a, b) =>
-                new Date(a.published_at).getTime() -
-                new Date(b.published_at).getTime()
-            )
-            .pop();
+          const latestRelease = await allReleasesRequest.json();
           $("#version").text(latestRelease.tag_name);
           for (const { browser_download_url: r_url } of latestRelease.assets) {
             if (/blockmap/.test(r_url)) {
