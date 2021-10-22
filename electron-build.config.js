@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 const pjson = require("./package.json");
+
 const isDevelopment = (process.env.NODE_ENV ?? "production") === "development";
 
 if (isDevelopment) {
@@ -20,6 +21,10 @@ module.exports = {
       {
         target: "dmg",
         arch: "x64",
+      },
+      {
+        target: "dmg",
+        arch: "arm64",
       },
     ],
     icon: "src/assets/icons/mac/icon.icns",
