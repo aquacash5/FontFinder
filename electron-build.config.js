@@ -44,12 +44,12 @@ module.exports = {
     icon: "src/assets/icons/win/icon.ico",
   },
   nsis: {
-    installerIcon: "src/assets/icons/win/icon.ico",
-    oneClick: false,
-    perMachine: false,
     allowElevation: true,
     allowToChangeInstallationDirectory: true,
     differentialPackage: false,
+    installerIcon: "src/assets/icons/win/icon.ico",
+    oneClick: false,
+    perMachine: false,
   },
   linux: {
     target: [
@@ -65,6 +65,8 @@ module.exports = {
     icon: "src/assets/icons/png",
   },
   dmg: {
+    gatekeeperAccess: false,
+    hardenedRuntime: true,
     writeUpdateInfo: false,
   },
 };

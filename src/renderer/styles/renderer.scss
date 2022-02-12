@@ -42,12 +42,20 @@ h5,
   background-color: $primary;
 }
 
-.fill-window {
+.about-window {
   height: 100vh;
   width: 100vw;
-}
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-.link-white {
-  color: white;
-  text-decoration: underline;
+  img {
+    height: 150px;
+  }
+
+  .link-white {
+    color: white;
+    text-decoration: underline;
+  }
 }

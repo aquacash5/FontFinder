@@ -163,7 +163,8 @@ async function checkForUpdate() {
     <style>
       body { margin: 0px; }
       .container {
-        height: 100vh;
+        height: 100%;
+        min-height: 100vh;
         width: 100vw;
         margin: 0px;
         display: flex;
@@ -279,7 +280,7 @@ function startApplication() {
     click: () => {
       if (!aboutWindow) {
         aboutWindow = new BrowserWindow({
-          ...centerChildInParent(mainWindow, 400, 310),
+          ...centerChildInParent(mainWindow, 350, 300),
           skipTaskbar: true,
           resizable: false,
           useContentSize: true,
