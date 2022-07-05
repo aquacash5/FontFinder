@@ -65,8 +65,6 @@ module.exports = {
     icon: "src/assets/icons/png",
   },
   dmg: {
-    gatekeeperAccess: false,
-    hardenedRuntime: true,
     writeUpdateInfo: false,
   },
 };
