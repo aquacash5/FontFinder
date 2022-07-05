@@ -9,34 +9,35 @@ on:
 
 jobs:
   release-windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      # TODO: When actions/setup-node fixes https://github.com/actions/setup-node/issues/150
-      #       Move id: node-setup to actions/setup-node and remove echo
-      - name: Setup Node 15
-        uses: actions/setup-node@v1
-        with:
-          node-version: 15
-          registry-url: https://npm.pkg.github.com/
-      - name: Store exact Node version
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
         id: node-setup
-        run: echo "::set-output name=version::$(node -v)"
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: https://npm.pkg.github.com/
+
       - name: Cache node_modules
-        uses: actions/cache@v2
         id: node_modules_cache
+        uses: actions/cache@v3
         with:
           path: node_modules
-          key: ${{ runner.os }}-${{ steps.node-setup.outputs.version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-${{ steps.node-setup.outputs.node-version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install node_modules
-        run: npm ci
         if: steps.node_modules_cache.outputs.cache-hit != 'true'
+        run: npm ci
+
       - name: Electron Builder
         run: npm run dist
         env:
           CSC_LINK: ${{ secrets.WINDOWS_CERTS }}
           CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTS_PASSWORD }}
           BETA_RELEASE: ${{ github.event.release.prerelease }}
+
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v2.0
         with:
@@ -44,33 +45,31 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   release-macos:
-    runs-on: macos-10.15
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
-      # TODO: When actions/setup-node fixes https://github.com/actions/setup-node/issues/150
-      #       Move id: node-setup to actions/setup-node and remove echo
-      - name: Setup Node 15
-        uses: actions/setup-node@v1
-        with:
-          node-version: 15
-          registry-url: https://npm.pkg.github.com/
-      - name: Store exact Node version
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
         id: node-setup
-        run: echo "::set-output name=version::$(node -v)"
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: https://npm.pkg.github.com/
+
       - name: Cache node_modules
-        uses: actions/cache@v2
         id: node_modules_cache
+        uses: actions/cache@v3
         with:
           path: node_modules
-          key: ${{ runner.os }}-${{ steps.node-setup.outputs.version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-${{ steps.node-setup.outputs.node-version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install node_modules
-        run: npm ci
         if: steps.node_modules_cache.outputs.cache-hit != 'true'
+        run: npm ci
+
       - name: Electron Builder
         run: npm run dist
-        # env:
-        #   CSC_LINK: ${{ secrets.WINDOWS_CERTS }}
-        #   CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTS_PASSWORD }}
+
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v2.0
         with:
@@ -78,30 +77,31 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   release-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      # TODO: When actions/setup-node fixes https://github.com/actions/setup-node/issues/150
-      #       Move id: node-setup to actions/setup-node and remove echo
-      - name: Setup Node 15
-        uses: actions/setup-node@v1
-        with:
-          node-version: 15
-          registry-url: https://npm.pkg.github.com/
-      - name: Store exact Node version
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
         id: node-setup
-        run: echo "::set-output name=version::$(node -v)"
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: https://npm.pkg.github.com/
+
       - name: Cache node_modules
-        uses: actions/cache@v2
         id: node_modules_cache
+        uses: actions/cache@v3
         with:
           path: node_modules
-          key: ${{ runner.os }}-${{ steps.node-setup.outputs.version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-${{ steps.node-setup.outputs.node-version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install node_modules
-        run: npm ci
         if: steps.node_modules_cache.outputs.cache-hit != 'true'
+        run: npm ci
+
       - name: Electron Builder
         run: npm run dist
+
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v2.0
         with:
