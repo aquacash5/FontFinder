@@ -272,7 +272,7 @@ renderFont model font =
                             , ( "font-weight-bold", model.bold )
                             , ( "font-italic", model.italic )
                             ]
-                        , style "font-family" ("\"" ++ font ++ "\"")
+                        , style "font-family" ("\"" ++ font ++ "\", AdobeBlank")
                         ]
                         [ text
                             (if String.isEmpty model.example then
