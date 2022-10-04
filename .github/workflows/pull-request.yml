@@ -1,0 +1,42 @@
+name: Release Executable
+
+on:
+  release:
+    types: [pull-request]
+
+jobs:
+  release-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        id: node-setup
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Cache node_modules
+        id: node_modules_cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ steps.node-setup.outputs.node-version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install node_modules
+        if: steps.node_modules_cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Electron Builder
+        run: npm run dist
+        env:
+          CSC_LINK: ${{ secrets.WINDOWS_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTS_PASSWORD }}
+          BETA_RELEASE: ${{ github.event.release.prerelease }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows
+          path: publish/*
