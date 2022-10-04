@@ -34,8 +34,6 @@ jobs:
       - name: Electron Builder
         run: npm run dist
         env:
-          CSC_LINK: ${{ secrets.WINDOWS_CERTS }}
-          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTS_PASSWORD }}
           BETA_RELEASE: ${{ github.event.release.prerelease }}
 
       - name: Upload Release Assets
