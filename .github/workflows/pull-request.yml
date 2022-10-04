@@ -1,8 +1,6 @@
-name: Release Executable
+name: Test Build
 
-on:
-  release:
-    types: [pull-request]
+on: pull_request
 
 jobs:
   release-windows:
