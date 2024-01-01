@@ -8,16 +8,29 @@ on:
     types: [published]
 
 jobs:
-  release-windows:
-    runs-on: windows-latest
+  build:
+    runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Setup Node
         id: node-setup
         uses: actions/setup-node@v3
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
           registry-url: https://npm.pkg.github.com/
 
       - name: Cache node_modules
@@ -35,70 +48,6 @@ jobs:
         run: npm run dist
         env:
           BETA_RELEASE: ${{ github.event.release.prerelease }}
-
-      - name: Upload Release Assets
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          files: "publish/*"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-  release-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node
-        id: node-setup
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: ".nvmrc"
-          registry-url: https://npm.pkg.github.com/
-
-      - name: Cache node_modules
-        id: node_modules_cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-${{ steps.node-setup.outputs.node-version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Install node_modules
-        if: steps.node_modules_cache.outputs.cache-hit != 'true'
-        run: npm ci
-
-      - name: Electron Builder
-        run: npm run dist
-
-      - name: Upload Release Assets
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          files: "publish/*"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-  release-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node
-        id: node-setup
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: ".nvmrc"
-          registry-url: https://npm.pkg.github.com/
-
-      - name: Cache node_modules
-        id: node_modules_cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-${{ steps.node-setup.outputs.node-version }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Install node_modules
-        if: steps.node_modules_cache.outputs.cache-hit != 'true'
-        run: npm ci
-
-      - name: Electron Builder
-        run: npm run dist
 
       - name: Upload Release Assets
         uses: AButler/upload-release-assets@v2.0
