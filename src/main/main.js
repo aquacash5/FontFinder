@@ -12,10 +12,9 @@ import {
 } from "electron";
 import WindowStateKeeper from "electron-window-state";
 import { promises as fs } from "fs";
-import marked from "marked";
+import { marked } from "marked";
 import path from "path";
 import * as R from "ramda";
-import { serializeError } from "serialize-error";
 
 const DEFAULT_SAVE_NAME = "Untitled.ffs";
 
@@ -151,10 +150,12 @@ async function checkForUpdate() {
       "https://api.github.com/repos/aquacash5/FontFinder/releases",
       { params: { per_page: 5, page: 1 } }
     );
+
     const latest = R.pipe(
-      R.filter(R.pathEq(["prerelease"], __BETA__)),
+      R.filter(R.pathEq(__BETA__, ["prerelease"])),
       R.head
     )(response.data);
+
     if (compareVersions(latest.tag_name, __VERSION__) > 0) {
       const html = `
 <html>
@@ -223,11 +224,11 @@ async function checkForUpdate() {
 </html>`;
       updateWindow = new BrowserWindow({
         ...centerChildInParent(mainWindow, 300, 250),
+        frame: true,
         modal: true,
+        resizable: false,
         show: false,
         skipTaskbar: true,
-        resizable: false,
-        frame: false,
       });
       updateWindow.setMenu(null);
       updateWindow.loadURL(
@@ -244,7 +245,7 @@ async function checkForUpdate() {
       updateWindow.on("ready-to-show", () => updateWindow.show());
     }
   } catch (err) {
-    console.error(serializeError(err));
+    console.error(err);
   }
 }
 
