@@ -23,7 +23,7 @@ let mainWindow;
 let updateWindow;
 let aboutWindow;
 
-let curretSelection = [];
+let currentSelection = [];
 let unsavedModifications = false;
 let savePath = DEFAULT_SAVE_NAME;
 
@@ -67,7 +67,7 @@ async function systemFonts() {
       args: R.pipe(
         R.filter(R.compose(R.identity, R.prop("name"))),
         R.filter(R.compose(R.not, R.startsWith("."), R.prop("name"))),
-        R.uniqBy(R.prop("name"))
+        R.uniqBy(R.prop("name")),
       )(Array.from(ttfInfoList)),
     });
   } catch (err) {
@@ -102,11 +102,11 @@ async function openFile() {
   if (!result.canceled) {
     savePath = result.filePaths[0];
     const selectedResults = await fs.readFile(savePath);
-    curretSelection = JSON.parse(selectedResults.toString());
+    currentSelection = JSON.parse(selectedResults.toString());
     unsavedModifications = false;
     mainWindow.webContents.send("ELM-EVENT", {
       port: "receiveSelected",
-      args: curretSelection,
+      args: currentSelection,
     });
     mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   }
@@ -116,7 +116,7 @@ async function saveFile() {
   if (savePath === DEFAULT_SAVE_NAME) {
     saveFileAs();
   } else {
-    await fs.writeFile(savePath, JSON.stringify(curretSelection));
+    await fs.writeFile(savePath, JSON.stringify(currentSelection));
     unsavedModifications = false;
     mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   }
@@ -138,7 +138,7 @@ async function saveFileAs() {
   });
   if (!result.canceled) {
     savePath = result.filePath;
-    await fs.writeFile(savePath, JSON.stringify(curretSelection));
+    await fs.writeFile(savePath, JSON.stringify(currentSelection));
     unsavedModifications = false;
     mainWindow.setTitle(calcTitle(savePath, unsavedModifications));
   }
@@ -148,12 +148,12 @@ async function checkForUpdate() {
   try {
     const response = await axios.get(
       "https://api.github.com/repos/aquacash5/FontFinder/releases",
-      { params: { per_page: 5, page: 1 } }
+      { params: { per_page: 5, page: 1 } },
     );
 
     const latest = R.pipe(
       R.filter(R.pathEq(__BETA__, ["prerelease"])),
-      R.head
+      R.head,
     )(response.data);
 
     if (compareVersions(latest.tag_name, __VERSION__) > 0) {
@@ -223,16 +223,22 @@ async function checkForUpdate() {
   </body>
 </html>`;
       updateWindow = new BrowserWindow({
-        ...centerChildInParent(mainWindow, 300, 250),
+        ...centerChildInParent(mainWindow, 400, 300),
+        parent: mainWindow,
         frame: true,
         modal: true,
+        minimizable: false,
+        maximizable: false,
         resizable: false,
         show: false,
         skipTaskbar: true,
+        webPreferences: {
+          javascript: false,
+        },
       });
       updateWindow.setMenu(null);
       updateWindow.loadURL(
-        "data:text/html;base64," + Buffer.from(html).toString("base64")
+        "data:text/html;base64," + Buffer.from(html).toString("base64"),
       );
       if (!__PACKAGED__) {
         updateWindow.webContents.openDevTools({ mode: "detach" });
@@ -265,12 +271,10 @@ function startApplication() {
     show: false,
     minWidth: 900,
     minHeight: 600,
-    fullscreenable: false,
     title: calcTitle(savePath, unsavedModifications),
     devTools: __DEVELOPMENT__,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      nativeWindowOpen: __DEVELOPMENT__,
     },
   });
 
@@ -429,8 +433,8 @@ function main() {
   });
 
   ipcMain.on("saveSelected", (_, args) => {
-    curretSelection = args;
-    if (R.isEmpty(curretSelection)) {
+    currentSelection = args;
+    if (R.isEmpty(currentSelection)) {
       unsavedModifications = false;
       savePath = DEFAULT_SAVE_NAME;
     } else {
